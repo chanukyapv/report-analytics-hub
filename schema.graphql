@@ -1,0 +1,203 @@
+
+type User {
+  id: ID!
+  email: String!
+  name: String!
+  role: String!
+  is_active: Boolean!
+}
+
+type Role {
+  id: ID!
+  name: String!
+  description: String!
+}
+
+type Metric {
+  id: ID!
+  name: String!
+  baseline: Float!
+  target: Float!
+  actual_formula: String!
+  unit: String!
+  created_by: ID!
+}
+
+type MetricValue {
+  metric_id: String!
+  name: String!
+  value: Float!
+  comment: String
+  baseline: Float
+  target: Float
+  unit: String
+  status: String
+}
+
+type WeeklyReport {
+  id: ID!
+  fy: String!
+  quarter: String!
+  week_date: String!
+  metrics: [MetricValue!]!
+  created_by: ID!
+  created_at: String!
+  updated_at: String
+}
+
+type ReportDraft {
+  id: ID!
+  fy: String!
+  quarter: String!
+  week_date: String!
+  metrics: [MetricValue!]!
+  created_by: ID!
+  created_at: String!
+  updated_at: String!
+}
+
+type QuarterlyReport {
+  fy: String!
+  quarter: String!
+  metrics: [MetricValue!]!
+}
+
+type Quarter {
+  name: String!
+  weeks: [String!]!
+}
+
+type FYConfig {
+  id: ID!
+  fy: String!
+  quarters: [Quarter!]!
+}
+
+input MetricInput {
+  name: String!
+  baseline: Float!
+  target: Float!
+  actual_formula: String!
+  unit: String!
+}
+
+input MetricValueInput {
+  metric_id: String!
+  value: Float!
+  comment: String
+}
+
+input WeeklyReportInput {
+  fy: String!
+  quarter: String!
+  week_date: String!
+  metrics: [MetricValueInput!]!
+}
+
+input QuarterInput {
+  name: String!
+  weeks: [String!]!
+}
+
+input FYConfigInput {
+  fy: String!
+  quarters: [QuarterInput!]!
+}
+
+input ExportInput {
+  fy: String!
+  quarter: String
+  week_date: String
+  format: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+  name: String!
+  role: String!
+}
+
+type AuthPayload {
+  token: String
+  user: User
+}
+
+type ExportPayload {
+  url: String!
+}
+
+type ReportSummary {
+  total: Int!
+  green: Int!
+  amber: Int!
+  red: Int!
+}
+
+type WeekInfo {
+  date: String!
+  fy: String!
+  quarter: String!
+  weekNumber: Int!
+}
+
+type ServiceMetricDashboard {
+  weekInfo: WeekInfo!
+  report: [MetricValue!]!
+  summary: ReportSummary!
+}
+
+type Query {
+  hello: String!
+
+  # Auth
+  me: User!
+  roles: [Role!]!
+
+  # Metrics
+  metrics: [Metric!]!
+  metric(id: ID!): Metric
+
+  # Reports
+  weeklyReports(fy: String, quarter: String, week_date: String): [WeeklyReport!]!
+  weeklyReport(id: ID!): WeeklyReport
+  quarterlyReports(fy: String, quarter: String): [QuarterlyReport!]!
+  getDraft(fy: String!, quarter: String!, week_date: String!): ReportDraft
+
+  # FY Config
+  fyConfigs: [FYConfig!]!
+  fyConfig(fy: String!): FYConfig
+  
+  # Dashboard
+  serviceMetricDashboard: ServiceMetricDashboard!
+}
+
+type Mutation {
+  # Auth
+  login(input: LoginInput!): AuthPayload!
+  register(input: RegisterInput!): AuthPayload!
+
+  # Metrics
+  createMetric(input: MetricInput!): Metric!
+  updateMetric(id: ID!, input: MetricInput!): Metric!
+  deleteMetric(id: ID!): Boolean!
+
+  # Reports
+  createWeeklyReport(input: WeeklyReportInput!): WeeklyReport!
+  updateWeeklyReport(id: ID!, input: WeeklyReportInput!): WeeklyReport!
+  deleteWeeklyReport(id: ID!): Boolean!
+  saveDraft(input: WeeklyReportInput!): Boolean!
+
+  # FY Config
+  createFYConfig(input: FYConfigInput!): FYConfig!
+  updateFYConfig(id: ID!, input: FYConfigInput!): FYConfig!
+  deleteFYConfig(id: ID!): Boolean!
+
+  # Export
+  exportReport(input: ExportInput!): ExportPayload!
+}

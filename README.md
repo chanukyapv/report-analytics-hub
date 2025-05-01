@@ -1,73 +1,76 @@
-# Welcome to your Lovable project
 
-## Project info
+# Service Metrics Dashboard Backend
 
-**URL**: https://lovable.dev/projects/d7958b13-b3d6-4171-b3df-d3964d50e99d
+This backend powers the Service Metrics Dashboard, providing a GraphQL API for tracking performance metrics, generating reports, and visualizing performance insights.
 
-## How can I edit this code?
+## Tech Stack
 
-There are several ways of editing your application.
+- **FastAPI**: High-performance web framework
+- **Ariadne**: Schema-first GraphQL implementation
+- **MongoDB**: Database for storing metrics and reports
+- **Python 3.9+**: Programming language
 
-**Use Lovable**
+## Getting Started
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d7958b13-b3d6-4171-b3df-d3964d50e99d) and start prompting.
+1. **Install dependencies**
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+pip install -r requirements.txt
 ```
 
-**Edit a file directly in GitHub**
+2. **Environment Variables**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Set the following environment variables:
 
-**Use GitHub Codespaces**
+- `MONGO_URI`: MongoDB connection string (default: mongodb://localhost:27017)
+- `SECRET_KEY`: JWT secret key for authentication
+- `EXPORT_DIR`: Directory for storing exported reports (default: ./exports)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+3. **Run the Application**
 
-## What technologies are used for this project?
+```bash
+uvicorn main:app --reload
+```
 
-This project is built with:
+## API Usage
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The application exposes a GraphQL API at `/graphql` which can be explored using GraphQL Playground.
 
-## How can I deploy this project?
+### Authentication
 
-Simply open [Lovable](https://lovable.dev/projects/d7958b13-b3d6-4171-b3df-d3964d50e99d) and click on Share -> Publish.
+All API calls require authentication except for login and register. 
+Pass the JWT token in the Authorization header:
 
-## Can I connect a custom domain to my Lovable project?
+```
+Authorization: Bearer <token>
+```
 
-Yes, you can!
+### Main Features
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- User authentication (register, login)
+- Metric management
+- Weekly and quarterly reports
+- Service metrics dashboard with summary statistics
+- Export reports in various formats (CSV, Excel, PDF)
+- FY configuration management
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Initial Setup
+
+When first running the application, you'll need to:
+
+1. Register an admin user
+2. Create FY configurations
+3. Create metrics
+4. Start creating reports
+
+## Data Model
+
+- **Users**: Authentication and authorization
+- **Metrics**: Performance indicators being tracked
+- **Weekly Reports**: Period-specific metric values with comments
+- **FY Configs**: Fiscal year configuration with quarters and weeks
+
+## Access Control
+
+- **Admin**: Can create/update metrics, create reports, manage FY configs
+- **User**: Can view dashboard and download reports
