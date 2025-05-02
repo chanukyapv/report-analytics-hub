@@ -16,8 +16,10 @@ import Dashboard from "./pages/Dashboard";
 import ReportsPage from "./pages/Reports/ReportsPage";
 import ViewReport from "./pages/Reports/ViewReport";
 import ReportForm from "./pages/Reports/ReportForm";
+import ReportFormStep1 from "./pages/Reports/ReportFormStep1";
 import MetricsPage from "./pages/Metrics/MetricsPage";
 import MetricForm from "./pages/Metrics/MetricForm";
+import UnderConstruction from "./pages/UnderConstruction";
 
 // Layout
 import AppLayout from "./components/AppLayout";
@@ -59,6 +61,12 @@ const App = () => (
           
           <Route path="/reports/create" element={
             <AppLayout>
+              <ReportFormStep1 />
+            </AppLayout>
+          } />
+          
+          <Route path="/reports/create-form" element={
+            <AppLayout>
               <ReportForm />
             </AppLayout>
           } />
@@ -84,6 +92,31 @@ const App = () => (
           <Route path="/metrics/edit/:id" element={
             <AppLayout>
               <MetricForm />
+            </AppLayout>
+          } />
+          
+          {/* New dashboard pages */}
+          <Route path="/incident-dashboard" element={
+            <AppLayout>
+              <UnderConstruction title="Incident Dashboard" />
+            </AppLayout>
+          } />
+          
+          <Route path="/pr-dashboard" element={
+            <AppLayout>
+              <UnderConstruction title="PR Dashboard" />
+            </AppLayout>
+          } />
+          
+          <Route path="/indusit-dashboard" element={
+            <AppLayout>
+              <UnderConstruction title="IndusIT Dashboard" />
+            </AppLayout>
+          } />
+          
+          <Route path="/security-dashboard" element={
+            <AppLayout>
+              <UnderConstruction title="Security Dashboard" />
             </AppLayout>
           } />
           

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { getServiceMetricDashboard, exportReport } from "@/lib/api";
-import { BarChart2, Download, PieChart } from "lucide-react";
+import { BarChart2, Download } from "lucide-react";
 
 interface MetricValue {
   metric_id: string;
@@ -17,6 +17,7 @@ interface MetricValue {
   baseline?: number;
   target?: number;
   unit?: string;
+  status?: string;
 }
 
 interface WeekInfo {
@@ -68,20 +69,24 @@ const Dashboard = () => {
     fetchDashboardData();
   }, [navigate]);
   
-  const getMetricStatus = (value: number, baseline?: number, target?: number) => {
-    if (!baseline || !target) return "default";
+  // Format date from "DD-MM-YYYY" format for display
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "";
     
-    if (value >= target) return "green";
-    if (value >= baseline) return "amber";
-    return "red";
-  };
-  
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "green": return "Target Achieved";
-      case "amber": return "Above Baseline, Below Target";
-      case "red": return "Below Baseline";
-      default: return "Unknown";
+    // Check if already in DD-MM-YYYY format
+    if (dateStr.indexOf('-') === 2) {
+      return dateStr;
+    }
+    
+    try {
+      // Convert from YYYY-MM-DD to DD-MM-YYYY
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+      return dateStr;
+    } catch (e) {
+      return dateStr;
     }
   };
   
@@ -138,10 +143,10 @@ const Dashboard = () => {
     <div className="container mx-auto py-8 px-4">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Service Metrics Dashboard</h1>
+          <h1 className="text-3xl font-bold">QLA1 - Service Metrics Dashboard</h1>
           <p className="text-gray-600">
             FY: {dashboardData.weekInfo.fy} | Quarter: {dashboardData.weekInfo.quarter} | 
-            Week Ending: {new Date(dashboardData.weekInfo.date).toLocaleDateString()}
+            Week Ending: {formatDate(dashboardData.weekInfo.date)}
           </p>
         </div>
         <div className="flex gap-2">
@@ -207,7 +212,7 @@ const Dashboard = () => {
         <CardHeader>
           <CardTitle>Latest Metrics Report</CardTitle>
           <CardDescription>
-            Showing metrics for week ending {new Date(dashboardData.weekInfo.date).toLocaleDateString()}
+            Showing metrics for week ending {formatDate(dashboardData.weekInfo.date)}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -223,19 +228,16 @@ const Dashboard = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dashboardData.report.map((metric) => {
-                const status = getMetricStatus(metric.value, metric.baseline, metric.target);
-                return (
-                  <TableRow key={metric.metric_id}>
-                    <TableCell>{metric.name}</TableCell>
-                    <TableCell>{metric.value} {metric.unit}</TableCell>
-                    <TableCell>{metric.target} {metric.unit}</TableCell>
-                    <TableCell>{metric.baseline} {metric.unit}</TableCell>
-                    <TableCell>{getStatusBadge(status)}</TableCell>
-                    <TableCell>{metric.comment || "-"}</TableCell>
-                  </TableRow>
-                );
-              })}
+              {dashboardData.report.map((metric) => (
+                <TableRow key={metric.metric_id}>
+                  <TableCell>{metric.name}</TableCell>
+                  <TableCell>{metric.value} {metric.unit}</TableCell>
+                  <TableCell>{metric.target} {metric.unit}</TableCell>
+                  <TableCell>{metric.baseline} {metric.unit}</TableCell>
+                  <TableCell>{getStatusBadge(metric.status || '')}</TableCell>
+                  <TableCell>{metric.comment || "-"}</TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </CardContent>

@@ -2,7 +2,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, BarChart2, PieChart, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, BarChart2, PieChart, Settings, LogOut, Shield, FileWarning, FileSpreadsheet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AppLayoutProps {
@@ -52,7 +52,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             <div className="h-8 w-8 bg-primary rounded-md flex items-center justify-center">
               <PieChart className="h-5 w-5 text-white" />
             </div>
-            {menuOpen && <span className="ml-2 font-semibold">Metrics Dashboard</span>}
+            {menuOpen && <span className="ml-2 font-semibold">QLA1 Dashboard</span>}
           </div>
           <Button 
             variant="ghost" 
@@ -80,15 +80,66 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         {/* Sidebar Menu */}
         <div className="flex-1 py-4">
           <nav>
+            {/* Main Dashboards */}
+            <div className={cn("px-4 py-2", !menuOpen && "text-center")}>
+              {menuOpen ? <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Dashboards</h4> : <hr />}
+            </div>
+            
             <Link to="/dashboard">
               <div className={cn(
                 "flex items-center px-4 py-2 hover:bg-gray-100",
                 !menuOpen && "justify-center"
               )}>
                 <LayoutDashboard className="h-5 w-5 text-gray-600" />
-                {menuOpen && <span className="ml-2">Dashboard</span>}
+                {menuOpen && <span className="ml-2">Service Dashboard</span>}
               </div>
             </Link>
+            
+            <Link to="/incident-dashboard">
+              <div className={cn(
+                "flex items-center px-4 py-2 hover:bg-gray-100",
+                !menuOpen && "justify-center"
+              )}>
+                <FileWarning className="h-5 w-5 text-gray-600" />
+                {menuOpen && <span className="ml-2">Incident Dashboard</span>}
+              </div>
+            </Link>
+            
+            <Link to="/pr-dashboard">
+              <div className={cn(
+                "flex items-center px-4 py-2 hover:bg-gray-100",
+                !menuOpen && "justify-center"
+              )}>
+                <FileSpreadsheet className="h-5 w-5 text-gray-600" />
+                {menuOpen && <span className="ml-2">PR Dashboard</span>}
+              </div>
+            </Link>
+            
+            <Link to="/indusit-dashboard">
+              <div className={cn(
+                "flex items-center px-4 py-2 hover:bg-gray-100",
+                !menuOpen && "justify-center"
+              )}>
+                <BarChart2 className="h-5 w-5 text-gray-600" />
+                {menuOpen && <span className="ml-2">IndusIT Dashboard</span>}
+              </div>
+            </Link>
+            
+            <Link to="/security-dashboard">
+              <div className={cn(
+                "flex items-center px-4 py-2 hover:bg-gray-100",
+                !menuOpen && "justify-center"
+              )}>
+                <Shield className="h-5 w-5 text-gray-600" />
+                {menuOpen && <span className="ml-2">Security Dashboard</span>}
+              </div>
+            </Link>
+            
+            {/* Service Metrics */}
+            <div className={cn("px-4 py-2 mt-4", !menuOpen && "text-center")}>
+              {menuOpen ? <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Service Metrics</h4> : <hr />}
+            </div>
+            
             <Link to="/reports">
               <div className={cn(
                 "flex items-center px-4 py-2 hover:bg-gray-100",
@@ -98,6 +149,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 {menuOpen && <span className="ml-2">Reports</span>}
               </div>
             </Link>
+            
             <Link to="/metrics">
               <div className={cn(
                 "flex items-center px-4 py-2 hover:bg-gray-100",

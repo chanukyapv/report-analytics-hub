@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { getWeeklyReports, exportReport } from "@/lib/api";
-import { Download, Edit, PieChart, BarChart2 } from "lucide-react";
+import { Download, Edit, BarChart2 } from "lucide-react";
 
 interface MetricValue {
   metric_id: string;
@@ -83,6 +83,12 @@ const ReportsPage = () => {
       toast.error(`Failed to export as ${format}`);
     }
   };
+
+  // Format date for display (maintain DD-MM-YYYY format)
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    return dateStr; // Our backend now returns dates in DD-MM-YYYY format
+  };
   
   if (isLoading) {
     return (
@@ -96,7 +102,7 @@ const ReportsPage = () => {
     <div className="container mx-auto py-8 px-4">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Service Metrics Reports</h1>
+          <h1 className="text-3xl font-bold">QLA1 - Service Metrics Reports</h1>
           <p className="text-gray-600">View and manage service metrics reports</p>
         </div>
         {userRole === "admin" && (
@@ -143,9 +149,9 @@ const ReportsPage = () => {
                   <TableRow key={report.id}>
                     <TableCell>{report.fy}</TableCell>
                     <TableCell>{report.quarter}</TableCell>
-                    <TableCell>{new Date(report.week_date).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(report.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell>{report.updated_at ? new Date(report.updated_at).toLocaleDateString() : "-"}</TableCell>
+                    <TableCell>{formatDate(report.week_date)}</TableCell>
+                    <TableCell>{formatDate(report.created_at)}</TableCell>
+                    <TableCell>{report.updated_at ? formatDate(report.updated_at) : "-"}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button 

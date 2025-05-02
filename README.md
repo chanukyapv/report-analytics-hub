@@ -1,7 +1,15 @@
 
-# Service Metrics Dashboard Backend
+# QLA1 Dashboard Backend
 
-This backend powers the Service Metrics Dashboard, providing a GraphQL API for tracking performance metrics, generating reports, and visualizing performance insights.
+This backend powers the QLA1 Dashboard, providing a GraphQL API for tracking performance metrics, generating reports, and visualizing performance insights across multiple dashboards.
+
+## Available Dashboards
+
+- **Service Dashboard**: Track, visualize, and report on service metrics
+- **Incident Dashboard** (Coming Soon)
+- **PR Dashboard** (Coming Soon)
+- **IndusIT Dashboard** (Coming Soon)
+- **Security Dashboard** (Coming Soon)
 
 ## Tech Stack
 
@@ -9,6 +17,7 @@ This backend powers the Service Metrics Dashboard, providing a GraphQL API for t
 - **Ariadne**: Schema-first GraphQL implementation
 - **MongoDB**: Database for storing metrics and reports
 - **Python 3.9+**: Programming language
+- **React & TypeScript**: Frontend
 
 ## Getting Started
 
@@ -53,6 +62,7 @@ Authorization: Bearer <token>
 - Service metrics dashboard with summary statistics
 - Export reports in various formats (CSV, Excel, PDF)
 - FY configuration management
+- Report drafting with auto-save functionality
 
 ## Initial Setup
 
@@ -74,3 +84,7 @@ When first running the application, you'll need to:
 
 - **Admin**: Can create/update metrics, create reports, manage FY configs
 - **User**: Can view dashboard and download reports
+
+## Date Format
+
+The application uses DD-MM-YYYY date format for all date-related fields.

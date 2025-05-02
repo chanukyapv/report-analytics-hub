@@ -5,10 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { getMetrics, getWeeklyReport, createWeeklyReport, updateWeeklyReport, getFYConfigs } from "@/lib/api";
+import { getMetrics, getWeeklyReport, createWeeklyReport, updateWeeklyReport } from "@/lib/api";
 import { ArrowLeft, Save } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -28,17 +27,6 @@ interface MetricValue {
   comment?: string;
 }
 
-interface Quarter {
-  name: string;
-  weeks: string[];
-}
-
-interface FYConfig {
-  id: string;
-  fy: string;
-  quarters: Quarter[];
-}
-
 interface FormValues {
   fy: string;
   quarter: string;
@@ -55,9 +43,6 @@ const ReportForm = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [metrics, setMetrics] = useState<Metric[]>([]);
-  const [fyConfigs, setFYConfigs] = useState<FYConfig[]>([]);
-  const [availableQuarters, setAvailableQuarters] = useState<Quarter[]>([]);
-  const [availableWeeks, setAvailableWeeks] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState("");
@@ -134,41 +119,6 @@ const ReportForm = () => {
     setIsSaving(false);
   };
   
-  // Update available quarters when FY changes
-  const handleFYChange = (value: string) => {
-    form.setValue("fy", value);
-    form.setValue("quarter", "");
-    form.setValue("week_date", "");
-    
-    const selectedFY = fyConfigs.find(config => config.fy === value);
-    if (selectedFY) {
-      setAvailableQuarters(selectedFY.quarters);
-    } else {
-      setAvailableQuarters([]);
-    }
-    
-    setAvailableWeeks([]);
-    handleFormChange();
-  };
-  
-  // Update available weeks when quarter changes
-  const handleQuarterChange = (value: string) => {
-    form.setValue("quarter", value);
-    form.setValue("week_date", "");
-    
-    const selectedFY = fyConfigs.find(config => config.fy === form.getValues("fy"));
-    if (selectedFY) {
-      const selectedQuarter = selectedFY.quarters.find(q => q.name === value);
-      if (selectedQuarter) {
-        setAvailableWeeks(selectedQuarter.weeks);
-      } else {
-        setAvailableWeeks([]);
-      }
-    }
-    
-    handleFormChange();
-  };
-  
   // Calculate status based on metric value
   const getMetricStatus = (value: number, baseline: number, target: number) => {
     if (value >= target) return "green";
@@ -187,6 +137,27 @@ const ReportForm = () => {
         return <Badge className="bg-red-500">Below Baseline</Badge>;
       default:
         return <Badge>Unknown</Badge>;
+    }
+  };
+  
+  // Format date for display (DD-MM-YYYY)
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    
+    // Check if already in DD-MM-YYYY format
+    if (dateStr.indexOf('-') === 2) {
+      return dateStr;
+    }
+    
+    try {
+      // Convert from YYYY-MM-DD to DD-MM-YYYY
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+      return dateStr;
+    } catch (e) {
+      return dateStr;
     }
   };
   
@@ -219,10 +190,6 @@ const ReportForm = () => {
         const metricsData = await getMetrics(token);
         setMetrics(metricsData);
         
-        // Fetch FY configs
-        const fyConfigsData = await getFYConfigs(token);
-        setFYConfigs(fyConfigsData);
-        
         // If editing, fetch the report data
         if (isEditing && id) {
           const report = await getWeeklyReport(token, id);
@@ -241,18 +208,20 @@ const ReportForm = () => {
             };
           });
           form.setValue("metrics", metricsObj);
-          
-          // Set available quarters and weeks
-          const selectedFY = fyConfigsData.find(config => config.fy === report.fy);
-          if (selectedFY) {
-            setAvailableQuarters(selectedFY.quarters);
-            
-            const selectedQuarter = selectedFY.quarters.find(q => q.name === report.quarter);
-            if (selectedQuarter) {
-              setAvailableWeeks(selectedQuarter.weeks);
-            }
-          }
         } else {
+          // For new report, get values from session storage
+          const storedData = sessionStorage.getItem("reportFormData");
+          if (storedData) {
+            const formData = JSON.parse(storedData);
+            form.setValue("fy", formData.fy);
+            form.setValue("quarter", formData.quarter);
+            form.setValue("week_date", formData.week_date);
+          } else {
+            // If no stored data, redirect to step 1
+            navigate("/reports/create");
+            return;
+          }
+          
           // Initialize metrics object with empty values
           const metricsObj: { [key: string]: { value: number; comment?: string } } = {};
           metricsData.forEach((metric) => {
@@ -298,7 +267,10 @@ const ReportForm = () => {
         <div>
           <h1 className="text-3xl font-bold">{isEditing ? "Edit Report" : "Create New Report"}</h1>
           <p className="text-gray-600">
-            {isEditing ? "Update the report details" : "Fill in the details to create a new report"}
+            {isEditing 
+              ? "Update the report details" 
+              : `Creating report for FY ${form.getValues("fy")}, ${form.getValues("quarter")}, Week Ending ${formatDate(form.getValues("week_date"))}`
+            }
           </p>
         </div>
         {autoSaveStatus && (
@@ -308,103 +280,6 @@ const ReportForm = () => {
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} onChange={handleFormChange}>
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Report Information</CardTitle>
-              <CardDescription>Select the fiscal year, quarter, and week</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <FormField
-                  control={form.control}
-                  name="fy"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fiscal Year</FormLabel>
-                      <Select 
-                        disabled={isEditing}
-                        onValueChange={handleFYChange} 
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select fiscal year" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {fyConfigs.map((config) => (
-                            <SelectItem key={config.id} value={config.fy}>
-                              {config.fy}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="quarter"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Quarter</FormLabel>
-                      <Select 
-                        disabled={isEditing || !form.getValues("fy")}
-                        onValueChange={handleQuarterChange} 
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select quarter" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {availableQuarters.map((quarter) => (
-                            <SelectItem key={quarter.name} value={quarter.name}>
-                              {quarter.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="week_date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Week Ending</FormLabel>
-                      <Select 
-                        disabled={isEditing || !form.getValues("quarter")}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          handleFormChange();
-                        }} 
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select week" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {availableWeeks.map((week) => (
-                            <SelectItem key={week} value={week}>
-                              {new Date(week).toLocaleDateString()}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
-          
           <Card>
             <CardHeader>
               <CardTitle>Metrics</CardTitle>
