@@ -17,6 +17,8 @@ interface MetricValue {
   baseline?: number;
   target?: number;
   unit?: string;
+  quarter_actual?: number;
+  actual_formula?: string;
 }
 
 interface WeeklyReport {
@@ -147,7 +149,7 @@ const ViewReport = () => {
           <h1 className="text-3xl font-bold">Report Details</h1>
           <p className="text-gray-600">
             FY: {report.fy} | Quarter: {report.quarter} | 
-            Week Ending: {new Date(report.week_date).toLocaleDateString()}
+            Week Ending: {report.week_date}
           </p>
         </div>
         <div className="flex gap-2">
@@ -171,8 +173,8 @@ const ViewReport = () => {
         <CardHeader>
           <CardTitle>Metrics</CardTitle>
           <CardDescription>
-            Report created on {new Date(report.created_at).toLocaleDateString()}
-            {report.updated_at && ` | Last updated on ${new Date(report.updated_at).toLocaleDateString()}`}
+            Report created on {report.created_at}
+            {report.updated_at && ` | Last updated on ${report.updated_at}`}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -183,6 +185,7 @@ const ViewReport = () => {
                 <TableHead>Value</TableHead>
                 <TableHead>Target</TableHead>
                 <TableHead>Baseline</TableHead>
+                <TableHead>Quarter Actual</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Comment</TableHead>
               </TableRow>
@@ -196,6 +199,7 @@ const ViewReport = () => {
                     <TableCell>{metric.value} {metric.unit}</TableCell>
                     <TableCell>{metric.target} {metric.unit}</TableCell>
                     <TableCell>{metric.baseline} {metric.unit}</TableCell>
+                    <TableCell>{metric.quarter_actual !== undefined ? `${metric.quarter_actual.toFixed(2)} ${metric.unit}` : "-"}</TableCell>
                     <TableCell>{getStatusBadge(status)}</TableCell>
                     <TableCell>{metric.comment || "-"}</TableCell>
                   </TableRow>

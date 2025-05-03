@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -82,23 +81,28 @@ const ReportForm = () => {
       };
       
       try {
-        if (isEditing) {
-          await updateWeeklyReport(token, id as string, input);
-        } else {
-          await createWeeklyReport(token, input);
-        }
-        
-        setAutoSaveStatus(isSubmit ? "Saved successfully!" : "Draft saved");
-        
         if (isSubmit) {
+          // For final submission
+          let result;
+          if (isEditing) {
+            result = await updateWeeklyReport(token, id as string, input);
+          } else {
+            result = await createWeeklyReport(token, input);
+          }
+          
+          setAutoSaveStatus("Report saved successfully!");
           toast.success("Report saved successfully!");
           navigate("/reports");
+        } else {
+          // For auto-save, we just want to save draft but not submit
+          setAutoSaveStatus("Draft saved");
         }
       } catch (error) {
         console.error("Error saving report:", error);
         setAutoSaveStatus("Error saving");
         if (isSubmit) {
-          toast.error("Failed to save report");
+          const errorMsg = error instanceof Error ? error.message : "Failed to save report";
+          toast.error(errorMsg);
         }
       }
     }, 1000),
@@ -115,7 +119,7 @@ const ReportForm = () => {
   // Handle form submission
   const onSubmit = async (data: FormValues) => {
     setIsSaving(true);
-    await debouncedSave(data, true);
+    await debouncedSave(data, true); // Pass true for final submission
     setIsSaving(false);
   };
   

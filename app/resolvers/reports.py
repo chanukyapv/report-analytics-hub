@@ -1,4 +1,3 @@
-
 from ariadne import convert_kwargs_to_snake_case
 from fastapi import HTTPException, status
 from bson import ObjectId
@@ -10,7 +9,8 @@ import uuid
 from app.db.mongodb import (
     weekly_reports_collection,
     metrics_collection,
-    report_drafts_collection
+    report_drafts_collection,
+    serialize_doc
 )
 from app.auth import get_current_user, admin_required
 
@@ -73,13 +73,40 @@ async def weekly_report_resolver(_, info, id):
         if not report:
             return None
         
-        report["id"] = str(report["_id"])
-        del report["_id"]
+        # Get quarter actuals for each metric
+        for metric in report["metrics"]:
+            metric_id = metric["metric_id"]
+            # Get the metric formula
+            metric_data = metrics_collection.find_one({"_id": ObjectId(metric_id)})
+            if metric_data:
+                metric["actual_formula"] = metric_data.get("actual_formula", "")
+                
+                # Calculate quarter actual based on formula and all reports in the quarter
+                fy = report["fy"]
+                quarter = report["quarter"]
+                
+                # Get all reports for this quarter
+                quarter_reports = list(weekly_reports_collection.find({
+                    "fy": fy,
+                    "quarter": quarter
+                }))
+                
+                # Extract values for this metric from all reports
+                values = []
+                for qr in quarter_reports:
+                    for m in qr["metrics"]:
+                        if m["metric_id"] == metric_id:
+                            values.append(m["value"])
+                            break
+                
+                # Simple calculation: average of all values
+                # In a real system, you would parse and evaluate the formula
+                if values:
+                    metric["quarter_actual"] = sum(values) / len(values)
+                else:
+                    metric["quarter_actual"] = 0
         
-        # Convert any ObjectIds to strings
-        report["created_by"] = str(report["created_by"])
-        
-        return report
+        return serialize_doc(report)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -226,7 +253,8 @@ async def create_weekly_report_resolver(_, info, input):
             "baseline": baseline,
             "target": target,
             "unit": metric["unit"],
-            "status": status
+            "status": status,
+            "actual_formula": metric.get("actual_formula", "")
         })
     
     # Create report
@@ -252,11 +280,7 @@ async def create_weekly_report_resolver(_, info, input):
     
     # Return created report
     report = weekly_reports_collection.find_one({"_id": result.inserted_id})
-    report["id"] = str(report["_id"])
-    del report["_id"]
-    report["created_by"] = str(report["created_by"])
-    
-    return report
+    return serialize_doc(report)
 
 @convert_kwargs_to_snake_case
 async def update_weekly_report_resolver(_, info, id, input):
@@ -330,7 +354,8 @@ async def update_weekly_report_resolver(_, info, id, input):
             "baseline": baseline,
             "target": target,
             "unit": metric["unit"],
-            "status": status
+            "status": status,
+            "actual_formula": metric.get("actual_formula", "")
         })
     
     # Update report
@@ -349,11 +374,7 @@ async def update_weekly_report_resolver(_, info, id, input):
     
     # Return updated report
     updated_report = weekly_reports_collection.find_one({"_id": ObjectId(id)})
-    updated_report["id"] = str(updated_report["_id"])
-    del updated_report["_id"]
-    updated_report["created_by"] = str(updated_report["created_by"])
-    
-    return updated_report
+    return serialize_doc(updated_report)
 
 @convert_kwargs_to_snake_case
 async def delete_weekly_report_resolver(_, info, id):

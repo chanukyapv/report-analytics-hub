@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { getFYConfigs } from "@/lib/api";
+import { getFYConfigs, getWeeklyReports } from "@/lib/api";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { 
   Form, 
@@ -46,6 +46,7 @@ const ReportFormStep1 = () => {
   const [availableQuarters, setAvailableQuarters] = useState<Quarter[]>([]);
   const [availableWeeks, setAvailableWeeks] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isChecking, setIsChecking] = useState(false);
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -87,8 +88,39 @@ const ReportFormStep1 = () => {
     }
   };
 
+  // Check if a report already exists for the selected week
+  const checkExistingReport = async (data: FormValues) => {
+    setIsChecking(true);
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    
+    try {
+      const reports = await getWeeklyReports(token, data.fy, data.quarter, data.week_date);
+      
+      if (reports && reports.length > 0) {
+        toast.error(`A report for FY ${data.fy}, ${data.quarter}, week ending ${data.week_date} already exists.`);
+        navigate("/reports");
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error checking for existing reports:", error);
+      return false;
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
   // Handle form submission to proceed to the next step
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
+    // Check if a report already exists for this week
+    const reportExists = await checkExistingReport(data);
+    if (reportExists) return;
+    
     // Store the selected values in session storage
     sessionStorage.setItem("reportFormData", JSON.stringify(data));
     
@@ -280,9 +312,9 @@ const ReportFormStep1 = () => {
               <div className="flex justify-end mt-6">
                 <Button 
                   type="submit" 
-                  disabled={!form.getValues("week_date")}
+                  disabled={!form.getValues("week_date") || isChecking}
                 >
-                  Continue to Report Form
+                  {isChecking ? "Checking..." : "Continue to Report Form"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>

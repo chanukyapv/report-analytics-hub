@@ -32,6 +32,8 @@ type MetricValue {
   target: Float
   unit: String
   status: String
+  quarter_actual: Float
+  actual_formula: String
 }
 
 type WeeklyReport {

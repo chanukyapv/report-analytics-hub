@@ -1,4 +1,3 @@
-
 // API utility functions to interact with GraphQL backend
 
 const API_URL = "http://localhost:8000/graphql";
@@ -213,6 +212,8 @@ export async function getWeeklyReport(token: string, id: string) {
           baseline
           target
           unit
+          quarter_actual
+          actual_formula
         }
         created_by
         created_at
@@ -247,6 +248,7 @@ export async function createWeeklyReport(token: string, input: {
           name
           value
           comment
+          quarter_actual
         }
         created_by
         created_at
@@ -280,6 +282,7 @@ export async function updateWeeklyReport(token: string, id: string, input: {
           name
           value
           comment
+          quarter_actual
         }
         created_by
         updated_at

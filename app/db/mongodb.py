@@ -26,8 +26,16 @@ def serialize_doc(doc):
         # Format dates in DD-MM-YYYY format for date fields
         if "week_date" in doc:
             try:
-                date_obj = datetime.fromisoformat(doc["week_date"].replace('Z', '+00:00'))
-                doc["week_date"] = date_obj.strftime('%d-%m-%Y')
+                if isinstance(doc["week_date"], str):
+                    # Check if already in DD-MM-YYYY format
+                    if doc["week_date"].count('-') == 2 and len(doc["week_date"].split('-')[0]) == 2:
+                        pass  # Already in correct format
+                    else:
+                        # Convert from ISO format if needed
+                        date_obj = datetime.fromisoformat(doc["week_date"].replace('Z', '+00:00'))
+                        doc["week_date"] = date_obj.strftime('%d-%m-%Y')
+                elif isinstance(doc["week_date"], datetime):
+                    doc["week_date"] = doc["week_date"].strftime('%d-%m-%Y')
             except (ValueError, AttributeError):
                 pass  # Keep original format if parsing fails
                 

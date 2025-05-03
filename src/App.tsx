@@ -27,7 +27,14 @@ import AppLayout from "./components/AppLayout";
 // Add lodash.debounce
 import "./lib/api";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    }
+  }
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
