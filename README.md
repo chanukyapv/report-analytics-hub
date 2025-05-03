@@ -6,9 +6,8 @@ This backend powers the QLA1 Dashboard, providing a GraphQL API for tracking per
 ## Available Dashboards
 
 - **Service Dashboard**: Track, visualize, and report on service metrics
-- **Incident Dashboard** (Coming Soon)
+- **IndusIT Dashboard**: Governance tool for automation onboarding and monitoring
 - **PR Dashboard** (Coming Soon)
-- **IndusIT Dashboard** (Coming Soon)
 - **Security Dashboard** (Coming Soon)
 
 ## Tech Stack
@@ -57,33 +56,44 @@ Authorization: Bearer <token>
 ### Main Features
 
 - User authentication (register, login)
-- Metric management
-- Weekly and quarterly reports
-- Service metrics dashboard with summary statistics
-- Export reports in various formats (CSV, Excel, PDF)
-- FY configuration management
-- Report drafting with auto-save functionality
+- Multiple role support (SDAdmin, SDUser, IDAdmin, IDUser)
+- Service Dashboard
+  - Metric management
+  - Weekly and quarterly reports
+  - Service metrics dashboard with summary statistics
+  - Export reports in various formats (CSV, Excel, PDF)
+  - FY configuration management
+  - Report drafting with auto-save functionality
+- IndusIT Dashboard
+  - Automation metadata management
+  - Execution monitoring
+  - Infrastructure register
+  - Interface register
+  - Microbot register
+  - User and admin dashboard views
 
-## Initial Setup
+## Access Control
 
-When first running the application, you'll need to:
-
-1. Register an admin user
-2. Create FY configurations
-3. Create metrics
-4. Start creating reports
+- **Admin**: Full access to all features and dashboards
+- **SDAdmin**: Can manage service dashboard metrics and reports
+- **SDUser**: Can view service dashboard data
+- **IDAdmin**: Can manage IndusIT dashboard data
+- **IDUser**: Can view IndusIT dashboard data
 
 ## Data Model
 
+### Service Dashboard
 - **Users**: Authentication and authorization
 - **Metrics**: Performance indicators being tracked
 - **Weekly Reports**: Period-specific metric values with comments
 - **FY Configs**: Fiscal year configuration with quarters and weeks
 
-## Access Control
-
-- **Admin**: Can create/update metrics, create reports, manage FY configs
-- **User**: Can view dashboard and download reports
+### IndusIT Dashboard
+- **Automations**: Metadata about RPA automations
+- **Execution Data**: Runtime information about automations
+- **Infra Servers**: Server infrastructure register
+- **Interfaces**: Integration points between automations and systems
+- **Microbots**: Reusable automation components
 
 ## Date Format
 

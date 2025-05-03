@@ -21,6 +21,10 @@ import MetricsPage from "./pages/Metrics/MetricsPage";
 import MetricForm from "./pages/Metrics/MetricForm";
 import UnderConstruction from "./pages/UnderConstruction";
 
+// IndusIT Dashboard Pages
+import IndusITDashboard from "./pages/IndusIT/Dashboard";
+import AutomationsPage from "./pages/IndusIT/AutomationsPage";
+
 // Layout
 import AppLayout from "./components/AppLayout";
 
@@ -102,22 +106,47 @@ const App = () => (
             </AppLayout>
           } />
           
-          {/* New dashboard pages */}
-          <Route path="/incident-dashboard" element={
+          {/* IndusIT Dashboard routes */}
+          <Route path="/indusit-dashboard" element={
             <AppLayout>
-              <UnderConstruction title="Incident Dashboard" />
+              <IndusITDashboard />
             </AppLayout>
           } />
           
+          <Route path="/indusit/automations" element={
+            <AppLayout>
+              <AutomationsPage />
+            </AppLayout>
+          } />
+          
+          <Route path="/indusit/automation/:action/:id?" element={
+            <AppLayout>
+              <UnderConstruction title="Automation Details" />
+            </AppLayout>
+          } />
+          
+          <Route path="/indusit/interfaces" element={
+            <AppLayout>
+              <UnderConstruction title="Interfaces Register" />
+            </AppLayout>
+          } />
+          
+          <Route path="/indusit/servers" element={
+            <AppLayout>
+              <UnderConstruction title="Infrastructure Register" />
+            </AppLayout>
+          } />
+          
+          <Route path="/indusit/microbots" element={
+            <AppLayout>
+              <UnderConstruction title="Microbot Register" />
+            </AppLayout>
+          } />
+          
+          {/* New dashboard pages with UnderConstruction placeholders */}
           <Route path="/pr-dashboard" element={
             <AppLayout>
               <UnderConstruction title="PR Dashboard" />
-            </AppLayout>
-          } />
-          
-          <Route path="/indusit-dashboard" element={
-            <AppLayout>
-              <UnderConstruction title="IndusIT Dashboard" />
             </AppLayout>
           } />
           

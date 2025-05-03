@@ -55,12 +55,45 @@ async def get_current_user(token: str):
     return user
 
 def is_admin(user):
-    return user["role"] == "admin"
+    return user["role"] == "admin" or user["role"] == "IDadmin"
 
 def admin_required(user):
     if not is_admin(user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin privileges required"
+        )
+    return True
+
+def is_sd_user(user):
+    return user["role"] in ["admin", "SDadmin", "SDuser"]
+
+def sd_user_required(user):
+    if not is_sd_user(user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Service Dashboard user privileges required"
+        )
+    return True
+
+def is_id_user(user):
+    return user["role"] in ["admin", "IDadmin", "IDuser"]
+
+def id_user_required(user):
+    if not is_id_user(user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="IndusIT Dashboard user privileges required"
+        )
+    return True
+
+def is_id_admin(user):
+    return user["role"] in ["admin", "IDadmin"]
+
+def id_admin_required(user):
+    if not is_id_admin(user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="IndusIT Dashboard admin privileges required"
         )
     return True

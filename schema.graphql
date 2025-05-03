@@ -75,6 +75,152 @@ type FYConfig {
   quarters: [Quarter!]!
 }
 
+# IndusIT Dashboard Types
+type Automation {
+  id: ID!
+  apaid: String!
+  rpa_name: String!
+  priority: String!
+  description: String!
+  lifecycle_status: String!
+  frequency: String!
+  avg_volumes_expected: Int!
+  sla: String!
+  interfaces: [String!]!
+  screen_scraping: Boolean!
+  design_documents_path: String!
+  code_repo_url: String!
+  code_repo_branch: String!
+  input_source: [String!]!
+  input_source_details: [String!]!
+  input_type: String!
+  camunda_flow_chart_url: String
+  ace_url: String
+  tech: String!
+  connecting_to_db: Boolean!
+  db_table_names: [String!]!
+  sme: [String!]!
+  business_owner: [String!]!
+  sme_sign_off_url: String
+  dev_contacts: [String!]!
+  design_contacts: [String!]!
+  functional_asg_spocs: [String!]!
+  house_keeping_activities: Boolean!
+  addl_details: String
+  business_impact: String!
+  category: String!
+  product_impacted: [String!]!
+  journey_impacted: [String!]!
+  cp_impacted: [String!]!
+  support_queue_id: String
+  open_stories: String
+  created_by: ID!
+  created_at: String!
+  updated_at: String
+}
+
+type ExecutionData {
+  id: ID!
+  automation_id: ID!
+  current_status: String!
+  last_successful_execution: String
+  daily_volumes_processed: Int!
+  monthly_volumes_processed: Int!
+  business_impact: String!
+  infra_details: [String!]!
+  web_service_url: String
+  app_url: String
+  created_at: String!
+  updated_at: String
+}
+
+type InfraServer {
+  id: ID!
+  ipname: String!
+  hostname: String!
+  env: String!
+  location: String!
+  zone: String!
+  usage: String!
+  os: String!
+  remarks: String
+  created_at: String!
+  updated_at: String
+}
+
+type Interface {
+  id: ID!
+  apaid: String!
+  rpa_name: String!
+  interfacing_application: String!
+  interfacing_application_appid: String!
+  svcid: String!
+  rams: String!
+  connectivity_type: String!
+  connectivity_direction: String!
+  data_consumed: String!
+  password_reset_frequency: String!
+  latest_password_change_date: String!
+  next_password_update_date: String!
+  credentials: String
+  connection_string: String
+  xfb_frequency: String
+  filename: String
+  api_url: String
+  mq_details: String
+  additional_details: String
+  created_at: String!
+  updated_at: String
+}
+
+type Microbot {
+  id: ID!
+  bot_name: String!
+  bot_description: String!
+  technology: String!
+  input_parameters: [String!]!
+  output_parameters: [String!]!
+  apaid_list: [String!]!
+  created_at: String!
+  updated_at: String
+}
+
+type IndusITDashboardSummary {
+  total_automations: Int!
+  automations_by_category: [CategoryCount!]!
+  automations_by_status: [StatusCount!]!
+  volumes_processed_today: Int!
+  priority_p1_bots_status: [BotStatus!]!
+  total_servers: Int!
+  total_interfaces: Int!
+  total_microbots: Int!
+}
+
+type CategoryCount {
+  category: String!
+  count: Int!
+}
+
+type StatusCount {
+  status: String!
+  count: Int!
+}
+
+type BotStatus {
+  apaid: String!
+  rpa_name: String!
+  current_status: String!
+}
+
+type AdminDashboardSummary {
+  last_dr_date: String
+  current_vulnerabilities: Int!
+  critical_vulnerabilities: Int!
+  high_vulnerabilities: Int!
+  medium_vulnerabilities: Int!
+  low_vulnerabilities: Int!
+}
+
 input MetricInput {
   name: String!
   baseline: Float!
@@ -123,6 +269,100 @@ input RegisterInput {
   password: String!
   name: String!
   role: String!
+}
+
+# IndusIT Dashboard Inputs
+input AutomationInput {
+  apaid: String!
+  rpa_name: String!
+  priority: String!
+  description: String!
+  lifecycle_status: String!
+  frequency: String!
+  avg_volumes_expected: Int!
+  sla: String!
+  interfaces: [String!]!
+  screen_scraping: Boolean!
+  design_documents_path: String!
+  code_repo_url: String!
+  code_repo_branch: String!
+  input_source: [String!]!
+  input_source_details: [String!]!
+  input_type: String!
+  camunda_flow_chart_url: String
+  ace_url: String
+  tech: String!
+  connecting_to_db: Boolean!
+  db_table_names: [String!]!
+  sme: [String!]!
+  business_owner: [String!]!
+  sme_sign_off_url: String
+  dev_contacts: [String!]!
+  design_contacts: [String!]!
+  functional_asg_spocs: [String!]!
+  house_keeping_activities: Boolean!
+  addl_details: String
+  business_impact: String!
+  category: String!
+  product_impacted: [String!]!
+  journey_impacted: [String!]!
+  cp_impacted: [String!]!
+  support_queue_id: String
+  open_stories: String
+}
+
+input ExecutionDataInput {
+  automation_id: ID!
+  current_status: String!
+  last_successful_execution: String
+  daily_volumes_processed: Int!
+  monthly_volumes_processed: Int!
+  business_impact: String!
+  infra_details: [String!]!
+  web_service_url: String
+  app_url: String
+}
+
+input InfraServerInput {
+  ipname: String!
+  hostname: String!
+  env: String!
+  location: String!
+  zone: String!
+  usage: String!
+  os: String!
+  remarks: String
+}
+
+input InterfaceInput {
+  apaid: String!
+  rpa_name: String!
+  interfacing_application: String!
+  interfacing_application_appid: String!
+  svcid: String!
+  rams: String!
+  connectivity_type: String!
+  connectivity_direction: String!
+  data_consumed: String!
+  password_reset_frequency: String!
+  latest_password_change_date: String!
+  next_password_update_date: String!
+  credentials: String
+  connection_string: String
+  xfb_frequency: String
+  filename: String
+  api_url: String
+  mq_details: String
+  additional_details: String
+}
+
+input MicrobotInput {
+  bot_name: String!
+  bot_description: String!
+  technology: String!
+  input_parameters: [String!]!
+  output_parameters: [String!]!
+  apaid_list: [String!]!
 }
 
 type AuthPayload {
@@ -177,6 +417,20 @@ type Query {
   
   # Dashboard
   serviceMetricDashboard: ServiceMetricDashboard!
+
+  # IndusIT Dashboard
+  automations: [Automation!]!
+  automation(id: ID!): Automation
+  executionDatas: [ExecutionData!]!
+  executionData(automationId: ID!): ExecutionData
+  infraServers: [InfraServer!]!
+  infraServer(id: ID!): InfraServer
+  interfaces(apaid: String): [Interface!]!
+  interface(id: ID!): Interface
+  microbots: [Microbot!]!
+  microbot(id: ID!): Microbot
+  indusITDashboardSummary: IndusITDashboardSummary!
+  adminDashboardSummary: AdminDashboardSummary!
 }
 
 type Mutation {
@@ -202,4 +456,25 @@ type Mutation {
 
   # Export
   exportReport(input: ExportInput!): ExportPayload!
+
+  # IndusIT Dashboard
+  createAutomation(input: AutomationInput!): Automation!
+  updateAutomation(id: ID!, input: AutomationInput!): Automation!
+  deleteAutomation(id: ID!): Boolean!
+  
+  createExecutionData(input: ExecutionDataInput!): ExecutionData!
+  updateExecutionData(id: ID!, input: ExecutionDataInput!): ExecutionData!
+  deleteExecutionData(id: ID!): Boolean!
+  
+  createInfraServer(input: InfraServerInput!): InfraServer!
+  updateInfraServer(id: ID!, input: InfraServerInput!): InfraServer!
+  deleteInfraServer(id: ID!): Boolean!
+  
+  createInterface(input: InterfaceInput!): Interface!
+  updateInterface(id: ID!, input: InterfaceInput!): Interface!
+  deleteInterface(id: ID!): Boolean!
+  
+  createMicrobot(input: MicrobotInput!): Microbot!
+  updateMicrobot(id: ID!, input: MicrobotInput!): Microbot!
+  deleteMicrobot(id: ID!): Boolean!
 }
