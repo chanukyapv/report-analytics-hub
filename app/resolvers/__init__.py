@@ -1,32 +1,48 @@
 
 from ariadne import MutationType, QueryType, ObjectType, make_executable_schema
-from .auth import login_resolver, register_resolver, me_resolver, roles_resolver
-from .metrics import (
-    metrics_resolver, metric_resolver, create_metric_resolver,
-    update_metric_resolver, delete_metric_resolver
+
+# Import resolvers
+from app.resolvers.auth import login_resolver, register_resolver, me_resolver, roles_resolver
+
+# Service dashboard resolvers
+from app.resolvers.service.metrics import (
+    metrics_resolver, metric_resolver, 
+    create_metric_resolver, update_metric_resolver, delete_metric_resolver
 )
-from .reports import (
+from app.resolvers.service.reports import (
     weekly_reports_resolver, weekly_report_resolver,
     create_weekly_report_resolver, update_weekly_report_resolver,
     delete_weekly_report_resolver, quarterly_reports_resolver,
     export_report_resolver, service_metric_dashboard_resolver
 )
-from .fy_config import (
-    fy_configs_resolver, fy_config_resolver, create_fy_config_resolver,
-    update_fy_config_resolver, delete_fy_config_resolver
+from app.resolvers.service.fy_config import (
+    fy_configs_resolver, fy_config_resolver, 
+    create_fy_config_resolver, update_fy_config_resolver, delete_fy_config_resolver
 )
-from .autosave import save_draft_resolver, get_draft_resolver
-from .indusit import (
+from app.resolvers.service.autosave import save_draft_resolver, get_draft_resolver
+
+# IndusIT dashboard resolvers
+from app.resolvers.indusit.automations import (
     automations_resolver, automation_resolver,
-    create_automation_resolver, update_automation_resolver, delete_automation_resolver,
+    create_automation_resolver, update_automation_resolver, delete_automation_resolver
+)
+from app.resolvers.indusit.execution_data import (
     execution_datas_resolver, execution_data_resolver,
-    create_execution_data_resolver, update_execution_data_resolver, delete_execution_data_resolver,
+    create_execution_data_resolver, update_execution_data_resolver, delete_execution_data_resolver
+)
+from app.resolvers.indusit.infra_servers import (
     infra_servers_resolver, infra_server_resolver,
-    create_infra_server_resolver, update_infra_server_resolver, delete_infra_server_resolver,
+    create_infra_server_resolver, update_infra_server_resolver, delete_infra_server_resolver
+)
+from app.resolvers.indusit.interfaces import (
     interfaces_resolver, interface_resolver,
-    create_interface_resolver, update_interface_resolver, delete_interface_resolver,
+    create_interface_resolver, update_interface_resolver, delete_interface_resolver
+)
+from app.resolvers.indusit.microbots import (
     microbots_resolver, microbot_resolver,
-    create_microbot_resolver, update_microbot_resolver, delete_microbot_resolver,
+    create_microbot_resolver, update_microbot_resolver, delete_microbot_resolver
+)
+from app.resolvers.indusit.dashboard import (
     indusit_dashboard_summary_resolver, admin_dashboard_summary_resolver
 )
 

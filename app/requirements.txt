@@ -1,0 +1,12 @@
+
+fastapi==0.92.0
+ariadne==0.19.1
+pymongo==4.3.3
+python-jose==3.3.0
+passlib==1.7.4
+uvicorn==0.23.2
+email-validator==2.0.0.post2
+pandas==2.0.1
+openpyxl==3.1.2
+reportlab==3.6.12
+python-multipart==0.0.6
