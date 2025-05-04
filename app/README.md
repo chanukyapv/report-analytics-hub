@@ -63,12 +63,6 @@ app/
 └── middleware.py          # Custom middleware functions
 ```
 
-## Adding New Features
-
-1. Define types and operations in `schema.graphql`
-2. Create resolvers in the appropriate folder under `resolvers/`
-3. Register resolvers in `resolvers/__init__.py`
-
 ## Environment Variables
 
 - `MONGO_URI`: MongoDB connection string

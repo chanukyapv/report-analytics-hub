@@ -42,29 +42,6 @@ yarn dev
 
 The application will be available at `http://localhost:8080`.
 
-## Project Structure
-
-```
-client/
-├── public/              # Static assets
-├── src/
-│   ├── components/      # Reusable UI components
-│   │   └── ui/          # shadcn/ui components
-│   ├── hooks/           # Custom React hooks
-│   ├── lib/             # Utility functions and API client
-│   ├── pages/           # Page components
-│   │   ├── Admin/       # Admin pages
-│   │   ├── Auth/        # Authentication pages
-│   │   ├── IndusIT/     # IndusIT Dashboard pages
-│   │   ├── Metrics/     # Metrics pages
-│   │   ├── Reports/     # Reports pages
-│   │   └── UserProfile/ # User profile pages
-│   ├── App.tsx          # Main application component
-│   └── main.tsx         # Entry point
-├── index.html           # HTML template
-└── vite.config.ts       # Vite configuration
-```
-
 ## Available Features
 
 - User authentication (login, register)
@@ -83,13 +60,3 @@ client/
   - Interface register
   - Microbot register
   - User and admin dashboard views
-
-## Build for Production
-
-```bash
-npm run build
-# or
-yarn build
-```
-
-This will generate optimized files in the `dist` directory.
