@@ -2,7 +2,7 @@
 from ariadne import MutationType, QueryType, make_executable_schema
 
 # Import resolvers
-from app.resolvers.auth import login_resolver, register_resolver, me_resolver, roles_resolver
+from resolvers.auth import login_resolver, register_resolver, me_resolver, roles_resolver
 
 # Read schema file
 with open("app/schema.graphql") as schema_file:

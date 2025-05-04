@@ -4,9 +4,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from ariadne.asgi import GraphQL
 import os
+import sys
+
+# Add current directory to Python path for correct imports
+sys.path.insert(0, os.path.abspath("."))
 
 # Import schema from resolvers
-from app.resolvers import schema
+from resolvers import schema
 
 # Lifespan (startup/shutdown hooks)
 @asynccontextmanager
