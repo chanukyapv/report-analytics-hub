@@ -1,522 +1,75 @@
 
-type User {
-  id: ID!
-  email: String!
-  name: String!
-  role: String!
-  is_active: Boolean!
-  last_login: String
-  login_count: Int
-}
-
-type RoleRequest {
-  id: ID!
-  user_id: ID!
-  user_name: String!
-  user_email: String!
-  requested_role: String!
-  status: String!  # "pending", "approved", "rejected"
-  request_date: String!
-  approval_date: String
-  approved_by: ID
-  approved_by_name: String
-  notes: String
-}
-
-type Role {
-  id: ID!
-  name: String!
-  description: String!
-}
-
-type SystemStats {
-  total_users: Int!
-  active_users: Int!
-  users_by_role: [RoleCount!]!
-  pending_requests: Int!
-}
-
-type RoleCount {
-  role: String!
-  count: Int!
-}
-
-type UserActivity {
-  user_id: ID!
-  name: String!
-  email: String!
-  last_login: String
-  login_count: Int!
-}
-
-type Metric {
-  id: ID!
-  name: String!
-  baseline: Float!
-  target: Float!
-  actual_formula: String!
-  unit: String!
-  created_by: ID!
-}
-
-type MetricValue {
-  metric_id: String!
-  name: String!
-  value: Float!
-  comment: String
-  baseline: Float
-  target: Float
-  unit: String
-  status: String
-  quarter_actual: Float
-  actual_formula: String
-}
-
-type WeeklyReport {
-  id: ID!
-  fy: String!
-  quarter: String!
-  week_date: String!
-  metrics: [MetricValue!]!
-  created_by: ID!
-  created_at: String!
-  updated_at: String
-}
-
-type ReportDraft {
-  id: ID!
-  fy: String!
-  quarter: String!
-  week_date: String!
-  metrics: [MetricValue!]!
-  created_by: ID!
-  created_at: String!
-  updated_at: String!
-}
-
-type QuarterlyReport {
-  fy: String!
-  quarter: String!
-  metrics: [MetricValue!]!
-}
-
-type Quarter {
-  name: String!
-  weeks: [String!]!
-}
-
-type FYConfig {
-  id: ID!
-  fy: String!
-  quarters: [Quarter!]!
-}
-
-# IndusIT Dashboard Types
-type Automation {
-  id: ID!
-  apaid: String!
-  rpa_name: String!
-  priority: String!
-  description: String!
-  lifecycle_status: String!
-  frequency: String!
-  avg_volumes_expected: Int!
-  sla: String!
-  interfaces: [String!]!
-  screen_scraping: Boolean!
-  design_documents_path: String!
-  code_repo_url: String!
-  code_repo_branch: String!
-  input_source: [String!]!
-  input_source_details: [String!]!
-  input_type: String!
-  camunda_flow_chart_url: String
-  ace_url: String
-  tech: String!
-  connecting_to_db: Boolean!
-  db_table_names: [String!]!
-  sme: [String!]!
-  business_owner: [String!]!
-  sme_sign_off_url: String
-  dev_contacts: [String!]!
-  design_contacts: [String!]!
-  functional_asg_spocs: [String!]!
-  house_keeping_activities: Boolean!
-  addl_details: String
-  business_impact: String!
-  category: String!
-  product_impacted: [String!]!
-  journey_impacted: [String!]!
-  cp_impacted: [String!]!
-  support_queue_id: String
-  open_stories: String
-  created_by: ID!
-  created_at: String!
-  updated_at: String
-}
-
-type ExecutionData {
-  id: ID!
-  automation_id: ID!
-  current_status: String!
-  last_successful_execution: String
-  daily_volumes_processed: Int!
-  monthly_volumes_processed: Int!
-  business_impact: String!
-  infra_details: [String!]!
-  web_service_url: String
-  app_url: String
-  created_at: String!
-  updated_at: String
-}
-
-type InfraServer {
-  id: ID!
-  ipname: String!
-  hostname: String!
-  env: String!
-  location: String!
-  zone: String!
-  usage: String!
-  os: String!
-  remarks: String
-  created_at: String!
-  updated_at: String
-}
-
-type Interface {
-  id: ID!
-  apaid: String!
-  rpa_name: String!
-  interfacing_application: String!
-  interfacing_application_appid: String!
-  svcid: String!
-  rams: String!
-  connectivity_type: String!
-  connectivity_direction: String!
-  data_consumed: String!
-  password_reset_frequency: String!
-  latest_password_change_date: String!
-  next_password_update_date: String!
-  credentials: String
-  connection_string: String
-  xfb_frequency: String
-  filename: String
-  api_url: String
-  mq_details: String
-  additional_details: String
-  created_at: String!
-  updated_at: String
-}
-
-type Microbot {
-  id: ID!
-  bot_name: String!
-  bot_description: String!
-  technology: String!
-  input_parameters: [String!]!
-  output_parameters: [String!]!
-  apaid_list: [String!]!
-  created_at: String!
-  updated_at: String
-}
-
-type IndusITDashboardSummary {
-  total_automations: Int!
-  automations_by_category: [CategoryCount!]!
-  automations_by_status: [StatusCount!]!
-  volumes_processed_today: Int!
-  priority_p1_bots_status: [BotStatus!]!
-  total_servers: Int!
-  total_interfaces: Int!
-  total_microbots: Int!
-}
-
-type CategoryCount {
-  category: String!
-  count: Int!
-}
-
-type StatusCount {
-  status: String!
-  count: Int!
-}
-
-type BotStatus {
-  apaid: String!
-  rpa_name: String!
-  current_status: String!
-}
-
-type AdminDashboardSummary {
-  last_dr_date: String
-  current_vulnerabilities: Int!
-  critical_vulnerabilities: Int!
-  high_vulnerabilities: Int!
-  medium_vulnerabilities: Int!
-  low_vulnerabilities: Int!
-}
-
-input MetricInput {
-  name: String!
-  baseline: Float!
-  target: Float!
-  actual_formula: String!
-  unit: String!
-}
-
-input MetricValueInput {
-  metric_id: String!
-  value: Float!
-  comment: String
-}
-
-input WeeklyReportInput {
-  fy: String!
-  quarter: String!
-  week_date: String!
-  metrics: [MetricValueInput!]!
-}
-
-input QuarterInput {
-  name: String!
-  weeks: [String!]!
-}
-
-input FYConfigInput {
-  fy: String!
-  quarters: [QuarterInput!]!
-}
-
-input ExportInput {
-  fy: String!
-  quarter: String
-  week_date: String
-  format: String!
-}
-
-input LoginInput {
-  email: String!
-  password: String!
-}
-
-input RegisterInput {
-  email: String!
-  password: String!
-  name: String!
-}
-
-input RoleRequestInput {
-  role: String!
-  notes: String
-}
-
-input RoleRequestApprovalInput {
-  request_id: ID!
-  status: String!
-  notes: String
-}
-
-input UpdateUserRoleInput {
-  user_id: ID!
-  role: String!
-}
-
-# IndusIT Dashboard Inputs
-input AutomationInput {
-  apaid: String!
-  rpa_name: String!
-  priority: String!
-  description: String!
-  lifecycle_status: String!
-  frequency: String!
-  avg_volumes_expected: Int!
-  sla: String!
-  interfaces: [String!]!
-  screen_scraping: Boolean!
-  design_documents_path: String!
-  code_repo_url: String!
-  code_repo_branch: String!
-  input_source: [String!]!
-  input_source_details: [String!]!
-  input_type: String!
-  camunda_flow_chart_url: String
-  ace_url: String
-  tech: String!
-  connecting_to_db: Boolean!
-  db_table_names: [String!]!
-  sme: [String!]!
-  business_owner: [String!]!
-  sme_sign_off_url: String
-  dev_contacts: [String!]!
-  design_contacts: [String!]!
-  functional_asg_spocs: [String!]!
-  house_keeping_activities: Boolean!
-  addl_details: String
-  business_impact: String!
-  category: String!
-  product_impacted: [String!]!
-  journey_impacted: [String!]!
-  cp_impacted: [String!]!
-  support_queue_id: String
-  open_stories: String
-}
-
-input ExecutionDataInput {
-  automation_id: ID!
-  current_status: String!
-  last_successful_execution: String
-  daily_volumes_processed: Int!
-  monthly_volumes_processed: Int!
-  business_impact: String!
-  infra_details: [String!]!
-  web_service_url: String
-  app_url: String
-}
-
-input InfraServerInput {
-  ipname: String!
-  hostname: String!
-  env: String!
-  location: String!
-  zone: String!
-  usage: String!
-  os: String!
-  remarks: String
-}
-
-input InterfaceInput {
-  apaid: String!
-  rpa_name: String!
-  interfacing_application: String!
-  interfacing_application_appid: String!
-  svcid: String!
-  rams: String!
-  connectivity_type: String!
-  connectivity_direction: String!
-  data_consumed: String!
-  password_reset_frequency: String!
-  latest_password_change_date: String!
-  next_password_update_date: String!
-  credentials: String
-  connection_string: String
-  xfb_frequency: String
-  filename: String
-  api_url: String
-  mq_details: String
-  additional_details: String
-}
-
-input MicrobotInput {
-  bot_name: String!
-  bot_description: String!
-  technology: String!
-  input_parameters: [String!]!
-  output_parameters: [String!]!
-  apaid_list: [String!]!
-}
-
-type AuthPayload {
-  token: String
-  user: User
-}
-
-type ExportPayload {
-  url: String!
-}
-
-type ReportSummary {
-  total: Int!
-  green: Int!
-  amber: Int!
-  red: Int!
-}
-
-type WeekInfo {
-  date: String!
-  fy: String!
-  quarter: String!
-  weekNumber: Int!
-}
-
-type ServiceMetricDashboard {
-  weekInfo: WeekInfo!
-  report: [MetricValue!]!
-  summary: ReportSummary!
-}
+scalar Date
+scalar Upload
 
 type Query {
   hello: String!
-
-  # Auth & Users
   me: User!
-  roles: [Role!]!
+  roles: [String!]!
+  
+  # Admin dashboard
   users: [User!]!
   roleRequests(status: String): [RoleRequest!]!
   userRoleRequests: [RoleRequest!]!
   systemStats: SystemStats!
   userActivities: [UserActivity!]!
-
-  # Metrics
-  metrics: [Metric!]!
-  metric(id: ID!): Metric
-
-  # Reports
-  weeklyReports(fy: String, quarter: String, week_date: String): [WeeklyReport!]!
-  weeklyReport(id: ID!): WeeklyReport
-  quarterlyReports(fy: String, quarter: String): [QuarterlyReport!]!
-  getDraft(fy: String!, quarter: String!, week_date: String!): ReportDraft
-
-  # FY Config
-  fyConfigs: [FYConfig!]!
-  fyConfig(fy: String!): FYConfig
   
-  # Dashboard
+  # Service dashboard
+  metrics(filter: MetricFilterInput): [Metric!]!
+  metric(id: ID!): Metric
+  weeklyReports(filter: WeeklyReportFilterInput): [WeeklyReport!]!
+  weeklyReport(id: ID!): WeeklyReport
+  quarterlyReports(fiscalYear: String!, quarter: Int!): [WeeklyReport!]!
   serviceMetricDashboard: ServiceMetricDashboard!
-
-  # IndusIT Dashboard
-  automations: [Automation!]!
+  fyConfigs: [FYConfig!]!
+  fyConfig(id: ID!): FYConfig
+  getDraft(type: String!, reference: String): ReportDraft
+  
+  # IndusIT dashboard
+  automations(filter: AutomationFilterInput): [Automation!]!
   automation(id: ID!): Automation
-  executionDatas: [ExecutionData!]!
-  executionData(automationId: ID!): ExecutionData
-  infraServers: [InfraServer!]!
+  executionDatas(filter: ExecutionDataFilterInput): [ExecutionData!]!
+  executionData(id: ID!): ExecutionData
+  infraServers(filter: InfraServerFilterInput): [InfraServer!]!
   infraServer(id: ID!): InfraServer
-  interfaces(apaid: String): [Interface!]!
+  interfaces(filter: InterfaceFilterInput): [Interface!]!
   interface(id: ID!): Interface
-  microbots: [Microbot!]!
+  microbots(filter: MicrobotFilterInput): [Microbot!]!
   microbot(id: ID!): Microbot
   indusITDashboardSummary: IndusITDashboardSummary!
   adminDashboardSummary: AdminDashboardSummary!
 }
 
 type Mutation {
-  # Auth & Users
-  login(input: LoginInput!): AuthPayload!
+  # Auth
+  login(email: String!, password: String!): AuthPayload!
   register(input: RegisterInput!): AuthPayload!
+  
+  # Role management
   requestRole(input: RoleRequestInput!): RoleRequest!
-  approveRoleRequest(input: RoleRequestApprovalInput!): RoleRequest!
+  approveRoleRequest(input: ApproveRoleRequestInput!): RoleRequest!
   updateUserRole(input: UpdateUserRoleInput!): User!
-
+  
   # Metrics
   createMetric(input: MetricInput!): Metric!
   updateMetric(id: ID!, input: MetricInput!): Metric!
   deleteMetric(id: ID!): Boolean!
-
-  # Reports
+  
+  # Weekly reports
   createWeeklyReport(input: WeeklyReportInput!): WeeklyReport!
   updateWeeklyReport(id: ID!, input: WeeklyReportInput!): WeeklyReport!
   deleteWeeklyReport(id: ID!): Boolean!
-  saveDraft(input: WeeklyReportInput!): Boolean!
-
+  exportReport(input: ExportReportInput!): String!
+  
   # FY Config
   createFYConfig(input: FYConfigInput!): FYConfig!
   updateFYConfig(id: ID!, input: FYConfigInput!): FYConfig!
   deleteFYConfig(id: ID!): Boolean!
-
-  # Export
-  exportReport(input: ExportInput!): ExportPayload!
-
-  # IndusIT Dashboard
+  
+  # Report drafts
+  saveDraft(input: SaveDraftInput!): ReportDraft!
+  
+  # IndusIT dashboard
   createAutomation(input: AutomationInput!): Automation!
   updateAutomation(id: ID!, input: AutomationInput!): Automation!
   deleteAutomation(id: ID!): Boolean!
@@ -536,4 +89,456 @@ type Mutation {
   createMicrobot(input: MicrobotInput!): Microbot!
   updateMicrobot(id: ID!, input: MicrobotInput!): Microbot!
   deleteMicrobot(id: ID!): Boolean!
+}
+
+# Auth types
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  role: String!
+  lastLogin: Date
+  loginCount: Int
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+input RegisterInput {
+  name: String!
+  email: String!
+  password: String!
+}
+
+# Role management types
+type RoleRequest {
+  id: ID!
+  userId: ID!
+  userName: String!
+  userEmail: String!
+  requestedRole: String!
+  status: String!
+  requestDate: Date!
+  approvalDate: Date
+  approvedBy: ID
+  approvedByName: String
+  notes: String
+}
+
+input RoleRequestInput {
+  role: String!
+  notes: String
+}
+
+input ApproveRoleRequestInput {
+  requestId: ID!
+  status: String!
+  notes: String
+}
+
+input UpdateUserRoleInput {
+  userId: ID!
+  role: String!
+}
+
+# System stats types
+type SystemStats {
+  totalUsers: Int!
+  activeUsers: Int!
+  usersByRole: [RoleCount!]!
+  pendingRequests: Int!
+}
+
+type RoleCount {
+  role: String!
+  count: Int!
+}
+
+type UserActivity {
+  id: ID!
+  name: String!
+  email: String!
+  lastLogin: Date
+  loginCount: Int!
+}
+
+# Metrics types
+type Metric {
+  id: ID!
+  name: String!
+  description: String
+  metricType: String!
+  unit: String
+  baseline: Float
+  target: Float
+  direction: String!
+  frequency: String!
+  owner: String!
+  createdBy: String!
+  createdAt: Date!
+  updatedAt: Date
+}
+
+input MetricInput {
+  name: String!
+  description: String
+  metricType: String!
+  unit: String
+  baseline: Float
+  target: Float
+  direction: String!
+  frequency: String!
+  owner: String!
+}
+
+input MetricFilterInput {
+  metricType: String
+  frequency: String
+  owner: String
+  createdBy: String
+  search: String
+}
+
+# Weekly report types
+type WeeklyReport {
+  id: ID!
+  metricId: ID!
+  metricName: String!
+  weekDate: Date!
+  weekNumber: Int!
+  value: Float!
+  status: String!
+  commentary: String
+  actions: String
+  fiscalYear: String!
+  quarter: Int!
+  createdBy: String!
+  createdAt: Date!
+  updatedAt: Date
+}
+
+input WeeklyReportInput {
+  metricId: ID!
+  weekDate: Date!
+  weekNumber: Int!
+  value: Float!
+  status: String!
+  commentary: String
+  actions: String
+  fiscalYear: String!
+  quarter: Int!
+}
+
+input WeeklyReportFilterInput {
+  metricId: ID
+  fiscalYear: String
+  quarter: Int
+  weekNumber: Int
+  status: String
+}
+
+input ExportReportInput {
+  fiscalYear: String!
+  quarter: Int!
+  format: String!
+  metricIds: [ID!]
+}
+
+# FY Config types
+type FYConfig {
+  id: ID!
+  fiscalYear: String!
+  startDate: Date!
+  endDate: Date!
+  q1Start: Date!
+  q1End: Date!
+  q2Start: Date!
+  q2End: Date!
+  q3Start: Date!
+  q3End: Date!
+  q4Start: Date!
+  q4End: Date!
+  createdBy: String!
+  createdAt: Date!
+  updatedAt: Date
+}
+
+input FYConfigInput {
+  fiscalYear: String!
+  startDate: Date!
+  endDate: Date!
+  q1Start: Date!
+  q1End: Date!
+  q2Start: Date!
+  q2End: Date!
+  q3Start: Date!
+  q3End: Date!
+  q4Start: Date!
+  q4End: Date!
+}
+
+# Service Dashboard summary
+type ServiceMetricDashboard {
+  totalMetrics: Int!
+  metricsByType: [MetricTypeCount!]!
+  reportsByStatus: [StatusCount!]!
+  recentReports: [WeeklyReport!]!
+  weeklyTrends: [WeeklyTrend!]!
+  quarterSummary: [QuarterSummary!]!
+}
+
+type MetricTypeCount {
+  type: String!
+  count: Int!
+}
+
+type StatusCount {
+  status: String!
+  count: Int!
+}
+
+type WeeklyTrend {
+  weekNumber: Int!
+  weekDate: Date!
+  greenCount: Int!
+  amberCount: Int!
+  redCount: Int!
+}
+
+type QuarterSummary {
+  fiscalYear: String!
+  quarter: Int!
+  totalReports: Int!
+  greenCount: Int!
+  amberCount: Int!
+  redCount: Int!
+}
+
+# Report drafts
+type ReportDraft {
+  id: ID!
+  userId: ID!
+  type: String!
+  reference: String
+  content: String!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+input SaveDraftInput {
+  type: String!
+  reference: String
+  content: String!
+}
+
+# IndusIT automation types
+type Automation {
+  id: ID!
+  apaid: String!
+  rpaName: String!
+  description: String
+  category: String!
+  lifecycleStatus: String!
+  priority: String!
+  businessUnit: String!
+  department: String!
+  processOwner: String!
+  technicalOwner: String!
+  createdAt: Date!
+  updatedAt: Date
+}
+
+input AutomationInput {
+  apaid: String!
+  rpaName: String!
+  description: String
+  category: String!
+  lifecycleStatus: String!
+  priority: String!
+  businessUnit: String!
+  department: String!
+  processOwner: String!
+  technicalOwner: String!
+}
+
+input AutomationFilterInput {
+  category: String
+  lifecycleStatus: String
+  priority: String
+  businessUnit: String
+  department: String
+  search: String
+}
+
+# Execution data types
+type ExecutionData {
+  id: ID!
+  automationId: String!
+  currentStatus: String!
+  lastSuccessfulExecution: Date
+  dailyVolumesProcessed: Int!
+  monthlyVolumesProcessed: Int!
+  averageExecutionTime: Float
+  successRate: Float
+  comments: String
+  createdAt: Date!
+  updatedAt: Date
+}
+
+input ExecutionDataInput {
+  automationId: String!
+  currentStatus: String!
+  lastSuccessfulExecution: Date
+  dailyVolumesProcessed: Int!
+  monthlyVolumesProcessed: Int!
+  averageExecutionTime: Float
+  successRate: Float
+  comments: String
+}
+
+input ExecutionDataFilterInput {
+  automationId: String
+  currentStatus: String
+  search: String
+}
+
+# Infrastructure server types
+type InfraServer {
+  id: ID!
+  serverName: String!
+  ipAddress: String!
+  serverType: String!
+  environment: String!
+  operatingSystem: String!
+  location: String!
+  status: String!
+  comments: String
+  createdAt: Date!
+  updatedAt: Date
+}
+
+input InfraServerInput {
+  serverName: String!
+  ipAddress: String!
+  serverType: String!
+  environment: String!
+  operatingSystem: String!
+  location: String!
+  status: String!
+  comments: String
+}
+
+input InfraServerFilterInput {
+  serverType: String
+  environment: String
+  operatingSystem: String
+  location: String
+  status: String
+  search: String
+}
+
+# Interface types
+type Interface {
+  id: ID!
+  interfaceName: String!
+  sourceSystem: String!
+  targetSystem: String!
+  interfaceType: String!
+  authenticationType: String!
+  credentialLocation: String
+  accountName: String
+  latestPasswordChangeDate: Date
+  nextPasswordUpdateDate: Date
+  status: String!
+  comments: String
+  createdAt: Date!
+  updatedAt: Date
+}
+
+input InterfaceInput {
+  interfaceName: String!
+  sourceSystem: String!
+  targetSystem: String!
+  interfaceType: String!
+  authenticationType: String!
+  credentialLocation: String
+  accountName: String
+  latestPasswordChangeDate: Date
+  nextPasswordUpdateDate: Date
+  status: String!
+  comments: String
+}
+
+input InterfaceFilterInput {
+  sourceSystem: String
+  targetSystem: String
+  interfaceType: String
+  authenticationType: String
+  status: String
+  search: String
+}
+
+# Microbot types
+type Microbot {
+  id: ID!
+  botName: String!
+  botType: String!
+  location: String!
+  status: String!
+  assignedAutomations: Int!
+  lastDrDate: Date
+  comments: String
+  createdAt: Date!
+  updatedAt: Date
+}
+
+input MicrobotInput {
+  botName: String!
+  botType: String!
+  location: String!
+  status: String!
+  assignedAutomations: Int!
+  lastDrDate: Date
+  comments: String
+}
+
+input MicrobotFilterInput {
+  botType: String
+  location: String
+  status: String
+  search: String
+}
+
+# IndusIT dashboard summary
+type IndusITDashboardSummary {
+  totalAutomations: Int!
+  automationsByCategory: [CategoryCount!]!
+  automationsByStatus: [StatusCount!]!
+  volumesProcessedToday: Int!
+  priorityP1BotsStatus: [BotStatus!]!
+  totalServers: Int!
+  totalInterfaces: Int!
+  totalMicrobots: Int!
+}
+
+type CategoryCount {
+  category: String!
+  count: Int!
+}
+
+type BotStatus {
+  apaid: String!
+  rpaName: String!
+  currentStatus: String!
+}
+
+type AdminDashboardSummary {
+  lastDrDate: Date
+  currentVulnerabilities: Int!
+  criticalVulnerabilities: Int!
+  highVulnerabilities: Int!
+  mediumVulnerabilities: Int!
+  lowVulnerabilities: Int!
 }

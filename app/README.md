@@ -45,36 +45,3 @@ This folder contains the backend code for the QLA1 Dashboard application.
    ```
 
 The GraphQL API will be available at http://localhost:8000/graphql
-
-## Project Structure
-
-```
-app/
-├── db/
-│   └── mongodb.py         # MongoDB connection and helper functions
-├── resolvers/
-│   ├── admin/             # Admin dashboard resolvers
-│   ├── service/           # Service dashboard resolvers
-│   ├── indusit/           # IndusIT dashboard resolvers
-│   └── __init__.py        # Resolvers initialization
-├── auth.py                # Authentication and authorization
-├── main.py                # FastAPI app creation and configuration
-├── schema.graphql         # GraphQL schema
-└── middleware.py          # Custom middleware functions
-```
-
-## Environment Variables
-
-- `MONGO_URI`: MongoDB connection string
-- `SECRET_KEY`: Secret key for JWT token generation
-- `ACCESS_TOKEN_EXPIRE_MINUTES`: JWT token expiration time in minutes
-- `EXPORT_DIR`: Directory for exported reports (default: ./exports)
-
-## Authentication
-
-The API uses JWT tokens for authentication. To access protected endpoints:
-1. Call the `login` mutation to obtain a token
-2. Include the token in the Authorization header of subsequent requests:
-   ```
-   Authorization: Bearer <token>
-   ```

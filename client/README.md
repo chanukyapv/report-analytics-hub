@@ -8,11 +8,9 @@ This is the frontend for the QLA1 Dashboard application, providing user interfac
 - **React 18**: UI library
 - **TypeScript**: Type-safe JavaScript
 - **TailwindCSS**: Utility-first CSS framework
-- **shadcn/ui**: Customizable component system
 - **React Router**: Navigation and routing
 - **React Query**: Data fetching and state management
-- **Recharts**: Data visualization
-- **Lucide Icons**: SVG icons
+- **Sonner**: Toast notifications
 
 ## Getting Started
 
@@ -49,14 +47,4 @@ The application will be available at `http://localhost:8080`.
 - Role request workflow
 - Admin user management
 - Service Dashboard
-  - Metrics management
-  - Weekly and quarterly reports
-  - Reports visualization
-  - Export reports in various formats
 - IndusIT Dashboard
-  - Automation metadata management
-  - Execution monitoring
-  - Infrastructure register
-  - Interface register
-  - Microbot register
-  - User and admin dashboard views
