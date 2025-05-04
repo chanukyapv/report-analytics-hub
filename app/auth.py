@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from fastapi import HTTPException, status, Depends
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from app.db.mongodb import users_collection
+from app.db.mongodb import users_collection, role_requests_collection
 import os
 from bson import ObjectId
 
@@ -54,8 +54,29 @@ async def get_current_user(token: str):
     
     return user
 
+def validate_bt_email(email):
+    """Validate that email is from bt.com domain"""
+    if not email.endswith("@bt.com"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only bt.com email addresses are allowed"
+        )
+    return True
+
+# Role-based permissions
+def is_app_admin(user):
+    return user["role"] == "appadmin"
+
+def app_admin_required(user):
+    if not is_app_admin(user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="App Admin privileges required"
+        )
+    return True
+
 def is_admin(user):
-    return user["role"] == "admin" or user["role"] == "IDadmin"
+    return user["role"] == "admin" or user["role"] == "IDadmin" or user["role"] == "appadmin"
 
 def admin_required(user):
     if not is_admin(user):
@@ -66,7 +87,7 @@ def admin_required(user):
     return True
 
 def is_sd_user(user):
-    return user["role"] in ["admin", "SDadmin", "SDuser"]
+    return user["role"] in ["admin", "SDadmin", "SDuser", "appadmin"]
 
 def sd_user_required(user):
     if not is_sd_user(user):
@@ -77,7 +98,7 @@ def sd_user_required(user):
     return True
 
 def is_id_user(user):
-    return user["role"] in ["admin", "IDadmin", "IDuser"]
+    return user["role"] in ["admin", "IDadmin", "IDuser", "appadmin"]
 
 def id_user_required(user):
     if not is_id_user(user):
@@ -88,7 +109,7 @@ def id_user_required(user):
     return True
 
 def is_id_admin(user):
-    return user["role"] in ["admin", "IDadmin"]
+    return user["role"] in ["admin", "IDadmin", "appadmin"]
 
 def id_admin_required(user):
     if not is_id_admin(user):

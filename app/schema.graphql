@@ -5,12 +5,48 @@ type User {
   name: String!
   role: String!
   is_active: Boolean!
+  last_login: String
+  login_count: Int
+}
+
+type RoleRequest {
+  id: ID!
+  user_id: ID!
+  user_name: String!
+  user_email: String!
+  requested_role: String!
+  status: String!  # "pending", "approved", "rejected"
+  request_date: String!
+  approval_date: String
+  approved_by: ID
+  approved_by_name: String
+  notes: String
 }
 
 type Role {
   id: ID!
   name: String!
   description: String!
+}
+
+type SystemStats {
+  total_users: Int!
+  active_users: Int!
+  users_by_role: [RoleCount!]!
+  pending_requests: Int!
+}
+
+type RoleCount {
+  role: String!
+  count: Int!
+}
+
+type UserActivity {
+  user_id: ID!
+  name: String!
+  email: String!
+  last_login: String
+  login_count: Int!
 }
 
 type Metric {
@@ -268,6 +304,21 @@ input RegisterInput {
   email: String!
   password: String!
   name: String!
+}
+
+input RoleRequestInput {
+  role: String!
+  notes: String
+}
+
+input RoleRequestApprovalInput {
+  request_id: ID!
+  status: String!
+  notes: String
+}
+
+input UpdateUserRoleInput {
+  user_id: ID!
   role: String!
 }
 
@@ -397,9 +448,14 @@ type ServiceMetricDashboard {
 type Query {
   hello: String!
 
-  # Auth
+  # Auth & Users
   me: User!
   roles: [Role!]!
+  users: [User!]!
+  roleRequests(status: String): [RoleRequest!]!
+  userRoleRequests: [RoleRequest!]!
+  systemStats: SystemStats!
+  userActivities: [UserActivity!]!
 
   # Metrics
   metrics: [Metric!]!
@@ -434,9 +490,12 @@ type Query {
 }
 
 type Mutation {
-  # Auth
+  # Auth & Users
   login(input: LoginInput!): AuthPayload!
   register(input: RegisterInput!): AuthPayload!
+  requestRole(input: RoleRequestInput!): RoleRequest!
+  approveRoleRequest(input: RoleRequestApprovalInput!): RoleRequest!
+  updateUserRole(input: UpdateUserRoleInput!): User!
 
   # Metrics
   createMetric(input: MetricInput!): Metric!

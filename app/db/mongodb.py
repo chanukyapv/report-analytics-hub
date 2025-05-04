@@ -12,6 +12,7 @@ db = client.metrics_tracking
 # Collections
 users_collection = db.users
 roles_collection = db.roles
+role_requests_collection = db.role_requests
 metrics_collection = db.metrics
 weekly_reports_collection = db.weekly_reports
 fy_configs_collection = db.fy_configs
@@ -46,12 +47,17 @@ def serialize_doc(doc):
             except (ValueError, AttributeError):
                 pass  # Keep original format if parsing fails
         
-        # Handle other date fields for IndusIT Dashboard
+        # Format timestamp fields
         date_fields = [
             "last_successful_execution",
             "latest_password_change_date",
             "next_password_update_date",
-            "last_dr_date"
+            "last_dr_date",
+            "created_at",
+            "updated_at",
+            "request_date",
+            "approval_date",
+            "last_login"
         ]
         
         for field in date_fields:
@@ -68,19 +74,6 @@ def serialize_doc(doc):
                         doc[field] = doc[field].strftime('%d-%m-%Y')
                 except (ValueError, AttributeError):
                     pass  # Keep original format if parsing fails
-                
-        # Convert created_at and updated_at to proper format if they exist
-        if "created_at" in doc and doc["created_at"]:
-            try:
-                doc["created_at"] = doc["created_at"].strftime('%d-%m-%Y %H:%M:%S')
-            except AttributeError:
-                pass
-                
-        if "updated_at" in doc and doc["updated_at"]:
-            try:
-                doc["updated_at"] = doc["updated_at"].strftime('%d-%m-%Y %H:%M:%S')
-            except AttributeError:
-                pass
     return doc
 
 def serialize_docs(docs):

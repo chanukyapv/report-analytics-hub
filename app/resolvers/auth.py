@@ -1,10 +1,9 @@
-
 from ariadne import convert_kwargs_to_snake_case
 from fastapi import HTTPException, status
-from datetime import timedelta
+from datetime import datetime, timedelta
 from app.auth import (
     verify_password, get_password_hash, create_access_token,
-    get_current_user, ACCESS_TOKEN_EXPIRE_MINUTES
+    get_current_user, ACCESS_TOKEN_EXPIRE_MINUTES, validate_bt_email
 )
 from app.db.mongodb import users_collection, roles_collection
 import re
@@ -23,6 +22,14 @@ async def login_resolver(_, info, input):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    # Update login statistics
+    now = datetime.utcnow()
+    login_count = user.get("login_count", 0) + 1
+    users_collection.update_one(
+        {"_id": user["_id"]},
+        {"$set": {"last_login": now, "login_count": login_count}}
+    )
+    
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user["email"]},
@@ -39,7 +46,9 @@ async def login_resolver(_, info, input):
             "email": user["email"],
             "name": user["name"],
             "role": user["role"],
-            "is_active": user["is_active"]
+            "is_active": user["is_active"],
+            "last_login": now.strftime('%d-%m-%Y %H:%M:%S'),
+            "login_count": login_count
         }
     }
 
@@ -49,11 +58,11 @@ async def register_resolver(_, info, input):
     email = input.get("email")
     password = input.get("password")
     name = input.get("name")
-    role_name = input.get("role")
-
-    # Validate email
+    
+    # Validate that email is from bt.com domain
     try:
         validate_email(email)
+        validate_bt_email(email)
     except EmailNotValidError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -74,22 +83,17 @@ async def register_resolver(_, info, input):
             detail="Password must be at least 8 characters and contain both letters and numbers"
         )
 
-    # Validate role
-    role = roles_collection.find_one({"name": role_name})
-    if not role:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Role '{role_name}' does not exist"
-        )
-
-    # Create user
+    # Create user with default role "user"
     hashed_password = get_password_hash(password)
+    now = datetime.utcnow()
     user_data = {
         "email": email,
         "password": hashed_password,
         "name": name,
-        "role": role_name,
-        "is_active": True
+        "role": "user",  # Default role, users will request access to dashboards
+        "is_active": True,
+        "created_at": now,
+        "updated_at": now
     }
 
     result = users_collection.insert_one(user_data)
@@ -108,8 +112,9 @@ async def register_resolver(_, info, input):
             "id": user_id,
             "email": email,
             "name": name,
-            "role": role_name,
-            "is_active": True
+            "role": "user",
+            "is_active": True,
+            "created_at": now.strftime('%d-%m-%Y %H:%M:%S')
         }
     }
 

@@ -1,80 +1,86 @@
 
 # QLA1 Dashboard Backend
 
-This backend powers the QLA1 Dashboard, providing a GraphQL API for tracking performance metrics, generating reports, and visualizing performance insights across multiple dashboards.
-
-## Available Dashboards
-
-- **Service Dashboard**: Track, visualize, and report on service metrics
-- **IndusIT Dashboard**: Governance tool for automation onboarding and monitoring
-- **PR Dashboard** (Coming Soon)
-- **Security Dashboard** (Coming Soon)
+This folder contains the backend code for the QLA1 Dashboard application.
 
 ## Tech Stack
 
-- **FastAPI**: High-performance web framework
-- **Ariadne**: Schema-first GraphQL implementation
-- **MongoDB**: Database for storing metrics and reports
-- **Python 3.9+**: Programming language
+- FastAPI - Web framework
+- Ariadne - GraphQL implementation
+- MongoDB - Database
+- Python 3.9+ - Programming language
 
-## Getting Started
+## Setup
 
-1. **Install dependencies**
+1. Create a virtual environment
+   ```bash
+   python -m venv venv
+   ```
 
-```bash
-pip install -r requirements.txt
-```
+2. Activate the virtual environment
+   ```bash
+   # On Windows
+   .\venv\Scripts\activate
+   
+   # On macOS/Linux
+   source venv/bin/activate
+   ```
 
-2. **Environment Variables**
+3. Install dependencies
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Set the following environment variables:
+4. Set up environment variables
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+   
+   # Edit the .env file with your MongoDB credentials and other settings
+   ```
 
-- `MONGO_URI`: MongoDB connection string (default: mongodb://localhost:27017)
-- `SECRET_KEY`: JWT secret key for authentication
-- `EXPORT_DIR`: Directory for storing exported reports (default: ./exports)
+5. Start the server
+   ```bash
+   uvicorn app.main:app --reload
+   ```
 
-3. **Run the Application**
-
-```bash
-uvicorn app.main:app --reload
-```
-
-## API Usage
-
-The application exposes a GraphQL API at `/graphql` which can be explored using GraphQL Playground.
-
-### Authentication
-
-All API calls require authentication except for login and register. 
-Pass the JWT token in the Authorization header:
-
-```
-Authorization: Bearer <token>
-```
+The GraphQL API will be available at http://localhost:8000/graphql
 
 ## Project Structure
 
 ```
 app/
-├── auth.py                     # Authentication logic
-├── db/                         # Database models and connection
-├── middleware.py               # FastAPI middleware
-├── resolvers/                  # GraphQL resolvers
-│   ├── service/                # Service Dashboard resolvers
-│   ├── indusit/                # IndusIT Dashboard resolvers
-│   └── auth.py                 # Authentication resolvers
-├── utils/                      # Utility functions
-└── main.py                     # FastAPI application entry point
+├── db/
+│   └── mongodb.py         # MongoDB connection and helper functions
+├── resolvers/
+│   ├── admin/             # Admin dashboard resolvers
+│   ├── service/           # Service dashboard resolvers
+│   ├── indusit/           # IndusIT dashboard resolvers
+│   └── __init__.py        # Resolvers initialization
+├── auth.py                # Authentication and authorization
+├── main.py                # FastAPI app creation and configuration
+├── schema.graphql         # GraphQL schema
+└── middleware.py          # Custom middleware functions
 ```
 
-## Access Control
+## Adding New Features
 
-- **Admin**: Full access to all features and dashboards
-- **SDAdmin**: Can manage service dashboard metrics and reports
-- **SDUser**: Can view service dashboard data
-- **IDAdmin**: Can manage IndusIT dashboard data
-- **IDUser**: Can view IndusIT dashboard data
+1. Define types and operations in `schema.graphql`
+2. Create resolvers in the appropriate folder under `resolvers/`
+3. Register resolvers in `resolvers/__init__.py`
 
-## Data Format
+## Environment Variables
 
-The application uses DD-MM-YYYY date format for all date-related fields.
+- `MONGO_URI`: MongoDB connection string
+- `SECRET_KEY`: Secret key for JWT token generation
+- `ACCESS_TOKEN_EXPIRE_MINUTES`: JWT token expiration time in minutes
+- `EXPORT_DIR`: Directory for exported reports (default: ./exports)
+
+## Authentication
+
+The API uses JWT tokens for authentication. To access protected endpoints:
+1. Call the `login` mutation to obtain a token
+2. Include the token in the Authorization header of subsequent requests:
+   ```
+   Authorization: Bearer <token>
+   ```

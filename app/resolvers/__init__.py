@@ -3,6 +3,11 @@ from ariadne import MutationType, QueryType, ObjectType, make_executable_schema
 
 # Import resolvers
 from app.resolvers.auth import login_resolver, register_resolver, me_resolver, roles_resolver
+from app.resolvers.admin.users import (
+    users_resolver, role_requests_resolver, user_role_requests_resolver,
+    system_stats_resolver, user_activities_resolver, request_role_resolver,
+    approve_role_request_resolver, update_user_role_resolver
+)
 
 # Service dashboard resolvers
 from app.resolvers.service.metrics import (
@@ -50,6 +55,10 @@ from app.resolvers.indusit.dashboard import (
 query = QueryType()
 mutation = MutationType()
 user = ObjectType("User")
+role_request = ObjectType("RoleRequest")
+system_stats = ObjectType("SystemStats")
+role_count = ObjectType("RoleCount")
+user_activity = ObjectType("UserActivity")
 metric = ObjectType("Metric")
 weekly_report = ObjectType("WeeklyReport")
 fy_config = ObjectType("FYConfig")
@@ -80,6 +89,16 @@ query.set_field("me", me_resolver)
 query.set_field("roles", roles_resolver)
 mutation.set_field("login", login_resolver)
 mutation.set_field("register", register_resolver)
+
+# Admin resolvers
+query.set_field("users", users_resolver)
+query.set_field("roleRequests", role_requests_resolver)
+query.set_field("userRoleRequests", user_role_requests_resolver)
+query.set_field("systemStats", system_stats_resolver)
+query.set_field("userActivities", user_activities_resolver)
+mutation.set_field("requestRole", request_role_resolver)
+mutation.set_field("approveRoleRequest", approve_role_request_resolver)
+mutation.set_field("updateUserRole", update_user_role_resolver)
 
 # Metrics resolvers
 query.set_field("metrics", metrics_resolver)
@@ -123,24 +142,8 @@ query.set_field("microbot", microbot_resolver)
 query.set_field("indusITDashboardSummary", indusit_dashboard_summary_resolver)
 query.set_field("adminDashboardSummary", admin_dashboard_summary_resolver)
 
-mutation.set_field("createAutomation", create_automation_resolver)
-mutation.set_field("updateAutomation", update_automation_resolver)
-mutation.set_field("deleteAutomation", delete_automation_resolver)
-mutation.set_field("createExecutionData", create_execution_data_resolver)
-mutation.set_field("updateExecutionData", update_execution_data_resolver)
-mutation.set_field("deleteExecutionData", delete_execution_data_resolver)
-mutation.set_field("createInfraServer", create_infra_server_resolver)
-mutation.set_field("updateInfraServer", update_infra_server_resolver)
-mutation.set_field("deleteInfraServer", delete_infra_server_resolver)
-mutation.set_field("createInterface", create_interface_resolver)
-mutation.set_field("updateInterface", update_interface_resolver)
-mutation.set_field("deleteInterface", delete_interface_resolver)
-mutation.set_field("createMicrobot", create_microbot_resolver)
-mutation.set_field("updateMicrobot", update_microbot_resolver)
-mutation.set_field("deleteMicrobot", delete_microbot_resolver)
-
 # Read schema file
-with open("schema.graphql") as schema_file:
+with open("app/schema.graphql") as schema_file:
     type_defs = schema_file.read()
 
 # Create executable schema
@@ -149,6 +152,10 @@ schema = make_executable_schema(
     query, 
     mutation, 
     user, 
+    role_request,
+    system_stats,
+    role_count,
+    user_activity,
     metric, 
     weekly_report, 
     fy_config,

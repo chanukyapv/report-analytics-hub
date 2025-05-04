@@ -23,7 +23,12 @@ async def lifespan(app: FastAPI):
     print("🛑 App is shutting down...")
 
 # ✅ Create FastAPI app
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    lifespan=lifespan,
+    title="QLA1 Dashboard API",
+    description="API for the QLA1 Dashboard application",
+    version="1.0.0",
+)
 
 # ✅ Trusted Host Middleware
 app.add_middleware(

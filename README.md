@@ -7,8 +7,8 @@ QLA1 Dashboard is a comprehensive monitoring and governance tool for tracking se
 
 - **Service Dashboard**: Track, visualize, and report on service metrics
 - **IndusIT Dashboard**: Governance tool for automation onboarding and monitoring
-- **PR Dashboard** (Coming Soon)
-- **Security Dashboard** (Coming Soon)
+- **Role-based Access Control**: Granular permissions system with request workflow
+- **Admin Panel**: User management and system statistics
 
 ## Tech Stack
 
@@ -39,11 +39,20 @@ This project is organized into two main directories:
 
 ## User Roles
 
-- **Admin**: Full access to all features and dashboards
+- **appadmin**: Full access to all features, dashboards and user management
 - **SDAdmin**: Can manage service dashboard metrics and reports
 - **SDUser**: Can view service dashboard data
 - **IDAdmin**: Can manage IndusIT dashboard data
 - **IDUser**: Can view IndusIT dashboard data
+- **user**: Basic access (can request additional roles)
+
+## Role Request Workflow
+
+1. Users register with a bt.com email address
+2. Users are initially assigned the "user" role
+3. Users can request access to specific dashboards through the role request system
+4. App admins can approve or reject role requests
+5. Upon approval, users gain access to the requested dashboard
 
 ## License
 

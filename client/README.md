@@ -53,10 +53,12 @@ client/
 │   ├── hooks/           # Custom React hooks
 │   ├── lib/             # Utility functions and API client
 │   ├── pages/           # Page components
+│   │   ├── Admin/       # Admin pages
 │   │   ├── Auth/        # Authentication pages
-│   │   ├── Reports/     # Reports pages
+│   │   ├── IndusIT/     # IndusIT Dashboard pages
 │   │   ├── Metrics/     # Metrics pages
-│   │   └── IndusIT/     # IndusIT Dashboard pages
+│   │   ├── Reports/     # Reports pages
+│   │   └── UserProfile/ # User profile pages
 │   ├── App.tsx          # Main application component
 │   └── main.tsx         # Entry point
 ├── index.html           # HTML template
@@ -66,6 +68,9 @@ client/
 ## Available Features
 
 - User authentication (login, register)
+- Role-based access control
+- Role request workflow
+- Admin user management
 - Service Dashboard
   - Metrics management
   - Weekly and quarterly reports
