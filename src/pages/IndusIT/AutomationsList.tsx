@@ -52,7 +52,7 @@ const AutomationsList = () => {
   }, []);
   
   // Fetch automations data
-  const { data: automations, isLoading, error } = useQuery({
+  const { data: automations, isLoading, error } = useQuery<Automation[]>({
     queryKey: ['indusit-automations'],
     queryFn: async () => {
       const token = localStorage.getItem("token");
