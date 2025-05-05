@@ -6,9 +6,9 @@ This backend powers the QLA1 Dashboard, providing a GraphQL API for tracking per
 ## Available Dashboards
 
 - **Service Dashboard**: Track, visualize, and report on service metrics
+- **IndusIT Dashboard**: Governance tool for automation deployments on IndusIT platform
 - **Incident Dashboard** (Coming Soon)
 - **PR Dashboard** (Coming Soon)
-- **IndusIT Dashboard** (Coming Soon)
 - **Security Dashboard** (Coming Soon)
 
 ## Tech Stack
@@ -63,6 +63,9 @@ Authorization: Bearer <token>
 - Export reports in various formats (CSV, Excel, PDF)
 - FY configuration management
 - Report drafting with auto-save functionality
+- IndusIT automation governance with metadata tracking
+- Execution monitoring for automations
+- Infrastructure and interface registers
 
 ## Initial Setup
 
@@ -75,16 +78,24 @@ When first running the application, you'll need to:
 
 ## Data Model
 
-- **Users**: Authentication and authorization
+- **Users**: Authentication and authorization with role-based access
 - **Metrics**: Performance indicators being tracked
 - **Weekly Reports**: Period-specific metric values with comments
 - **FY Configs**: Fiscal year configuration with quarters and weeks
+- **Automation Metadata**: Details of automations deployed on IndusIT
+- **Execution Data**: Runtime information for automations
+- **Infra Register**: Server inventory
+- **Interface Register**: System interaction documentation
+- **Microbot Register**: Reusable automation components
 
 ## Access Control
 
 - **Admin**: Can create/update metrics, create reports, manage FY configs
 - **User**: Can view dashboard and download reports
+- **SDadmin/SDuser**: Access to Service Dashboard
+- **IDadmin/IDuser**: Access to IndusIT Dashboard
 
 ## Date Format
 
 The application uses DD-MM-YYYY date format for all date-related fields.
+

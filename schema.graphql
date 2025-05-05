@@ -4,6 +4,7 @@ type User {
   email: String!
   name: String!
   role: String!
+  roles: [String!]
   is_active: Boolean!
 }
 
@@ -75,6 +76,141 @@ type FYConfig {
   quarters: [Quarter!]!
 }
 
+# IndusIT Dashboard Types
+type AutomationMetadata {
+  id: ID!
+  apaid: String!
+  rpa_name: String!
+  priority: String!
+  description: String!
+  lifecycle_status: String!
+  frequency: String!
+  avg_volumes_expected: Int!
+  sla: String!
+  interfaces: [String!]!
+  screen_scraping: Boolean!
+  design_documents_path: String
+  code_repo_url: String
+  code_repo_branch: String
+  input_source: [String!]!
+  input_source_details: [String!]!
+  input_type: String!
+  camunda_flow_chart_url: String
+  ace_url: String
+  tech: String!
+  connecting_to_db: Boolean!
+  db_table_names: [String!]
+  sme: [String!]!
+  business_owner: [String!]!
+  sme_sign_off_url: String
+  dev_contacts: [String!]!
+  design_contacts: [String!]!
+  functional_asg_spocs: [String!]!
+  house_keeping_activities: Boolean!
+  addl_details: String
+  business_impact: String!
+  category: String!
+  product_impacted: [String!]!
+  journey_impacted: [String!]!
+  cp_impacted: [String!]!
+  support_queue_id: String
+  open_stories: String
+  created_by: ID!
+  created_at: String!
+  updated_at: String
+}
+
+type ExecutionData {
+  id: ID!
+  apaid: String!
+  current_status: String!
+  last_successful_execution: String
+  volumes_daily: Int
+  volumes_monthly: Int
+  business_impact: String
+  infra_details: [String!]!
+  web_service_url: String
+  app_url: String
+  created_at: String!
+  updated_at: String
+}
+
+type InfraRegister {
+  id: ID!
+  ipname: String!
+  hostname: String!
+  env: String!
+  location: String!
+  zone: String!
+  usage: String!
+  os: String!
+  remarks: String
+  created_at: String!
+  updated_at: String
+}
+
+type InterfaceRegister {
+  id: ID!
+  apaid: String!
+  rpa_name: String!
+  interfacing_application: String!
+  interfacing_application_appid: String
+  svcid: String
+  rams: String
+  connectivity_type: String!
+  connectivity_direction: String!
+  data_consumed: String!
+  password_reset_frequency: String
+  latest_password_change_date: String
+  next_password_update_date: String
+  credentials: String
+  connection_string: String
+  xfb_frequency: String
+  filename: String
+  api_url: String
+  mq_details: String
+  additional_details: String
+  created_at: String!
+  updated_at: String
+}
+
+type MicrobotRegister {
+  id: ID!
+  bot_name: String!
+  bot_description: String!
+  technology: String!
+  input_parameters: String!
+  output_parameters: String!
+  apaid: [String!]!
+  created_at: String!
+  updated_at: String
+}
+
+type UserDashboardStats {
+  automations_count_by_category: [CategoryCount!]!
+  volumes_processed_today: Int!
+  p1_bots_status: [BotStatus!]!
+}
+
+type CategoryCount {
+  category: String!
+  count: Int!
+}
+
+type BotStatus {
+  apaid: String!
+  rpa_name: String!
+  status: String!
+}
+
+type AdminDashboardStats {
+  automations_count_by_category: [CategoryCount!]!
+  volumes_processed_today: Int!
+  p1_bots_status: [BotStatus!]!
+  last_dr_date: String
+  current_vulns: Int!
+}
+
 input MetricInput {
   name: String!
   baseline: Float!
@@ -123,6 +259,101 @@ input RegisterInput {
   password: String!
   name: String!
   role: String!
+  roles: [String!]
+}
+
+# IndusIT Dashboard Inputs
+input AutomationMetadataInput {
+  apaid: String!
+  rpa_name: String!
+  priority: String!
+  description: String!
+  lifecycle_status: String!
+  frequency: String!
+  avg_volumes_expected: Int!
+  sla: String!
+  interfaces: [String!]!
+  screen_scraping: Boolean!
+  design_documents_path: String
+  code_repo_url: String
+  code_repo_branch: String
+  input_source: [String!]!
+  input_source_details: [String!]!
+  input_type: String!
+  camunda_flow_chart_url: String
+  ace_url: String
+  tech: String!
+  connecting_to_db: Boolean!
+  db_table_names: [String!]
+  sme: [String!]!
+  business_owner: [String!]!
+  sme_sign_off_url: String
+  dev_contacts: [String!]!
+  design_contacts: [String!]!
+  functional_asg_spocs: [String!]!
+  house_keeping_activities: Boolean!
+  addl_details: String
+  business_impact: String!
+  category: String!
+  product_impacted: [String!]!
+  journey_impacted: [String!]!
+  cp_impacted: [String!]!
+  support_queue_id: String
+  open_stories: String
+}
+
+input ExecutionDataInput {
+  apaid: String!
+  current_status: String!
+  last_successful_execution: String
+  volumes_daily: Int
+  volumes_monthly: Int
+  business_impact: String
+  infra_details: [String!]!
+  web_service_url: String
+  app_url: String
+}
+
+input InfraRegisterInput {
+  ipname: String!
+  hostname: String!
+  env: String!
+  location: String!
+  zone: String!
+  usage: String!
+  os: String!
+  remarks: String
+}
+
+input InterfaceRegisterInput {
+  apaid: String!
+  rpa_name: String!
+  interfacing_application: String!
+  interfacing_application_appid: String
+  svcid: String
+  rams: String
+  connectivity_type: String!
+  connectivity_direction: String!
+  data_consumed: String!
+  password_reset_frequency: String
+  latest_password_change_date: String
+  next_password_update_date: String
+  credentials: String
+  connection_string: String
+  xfb_frequency: String
+  filename: String
+  api_url: String
+  mq_details: String
+  additional_details: String
+}
+
+input MicrobotRegisterInput {
+  bot_name: String!
+  bot_description: String!
+  technology: String!
+  input_parameters: String!
+  output_parameters: String!
+  apaid: [String!]!
 }
 
 type AuthPayload {
@@ -177,6 +408,35 @@ type Query {
   
   # Dashboard
   serviceMetricDashboard: ServiceMetricDashboard!
+
+  # IndusIT Dashboard Queries
+  # Automation Metadata
+  automationMetadata(id: ID): AutomationMetadata
+  allAutomationMetadata: [AutomationMetadata!]!
+  automationMetadataByApaid(apaid: String!): AutomationMetadata
+  
+  # Execution Data
+  executionData(id: ID): ExecutionData
+  allExecutionData: [ExecutionData!]!
+  executionDataByApaid(apaid: String!): ExecutionData
+  
+  # Infra Register
+  infraRegister(id: ID): InfraRegister
+  allInfraRegister: [InfraRegister!]!
+  
+  # Interface Register
+  interfaceRegister(id: ID): InterfaceRegister
+  allInterfaceRegister: [InterfaceRegister!]!
+  interfaceRegisterByApaid(apaid: String!): [InterfaceRegister!]!
+  
+  # Microbot Register
+  microbotRegister(id: ID): MicrobotRegister
+  allMicrobotRegister: [MicrobotRegister!]!
+  microbotRegisterByApaid(apaid: String!): [MicrobotRegister!]!
+  
+  # Dashboard Stats
+  userDashboardStats: UserDashboardStats!
+  adminDashboardStats: AdminDashboardStats!
 }
 
 type Mutation {
@@ -202,4 +462,30 @@ type Mutation {
 
   # Export
   exportReport(input: ExportInput!): ExportPayload!
+
+  # IndusIT Dashboard Mutations
+  # Automation Metadata
+  createAutomationMetadata(input: AutomationMetadataInput!): AutomationMetadata!
+  updateAutomationMetadata(id: ID!, input: AutomationMetadataInput!): AutomationMetadata!
+  deleteAutomationMetadata(id: ID!): Boolean!
+  
+  # Execution Data
+  createExecutionData(input: ExecutionDataInput!): ExecutionData!
+  updateExecutionData(id: ID!, input: ExecutionDataInput!): ExecutionData!
+  deleteExecutionData(id: ID!): Boolean!
+  
+  # Infra Register
+  createInfraRegister(input: InfraRegisterInput!): InfraRegister!
+  updateInfraRegister(id: ID!, input: InfraRegisterInput!): InfraRegister!
+  deleteInfraRegister(id: ID!): Boolean!
+  
+  # Interface Register
+  createInterfaceRegister(input: InterfaceRegisterInput!): InterfaceRegister!
+  updateInterfaceRegister(id: ID!, input: InterfaceRegisterInput!): InterfaceRegister!
+  deleteInterfaceRegister(id: ID!): Boolean!
+  
+  # Microbot Register
+  createMicrobotRegister(input: MicrobotRegisterInput!): MicrobotRegister!
+  updateMicrobotRegister(id: ID!, input: MicrobotRegisterInput!): MicrobotRegister!
+  deleteMicrobotRegister(id: ID!): Boolean!
 }

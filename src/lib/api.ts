@@ -1,3 +1,4 @@
+
 // API utility functions to interact with GraphQL backend
 
 const API_URL = "http://localhost:8000/graphql";
@@ -41,6 +42,7 @@ export async function loginUser(input: { email: string; password: string }) {
           email
           name
           role
+          roles
           is_active
         }
       }
@@ -51,7 +53,7 @@ export async function loginUser(input: { email: string; password: string }) {
   return data.login;
 }
 
-export async function registerUser(input: { name: string; email: string; password: string; role: string }) {
+export async function registerUser(input: { name: string; email: string; password: string; role: string; roles?: string[] }) {
   const query = `
     mutation Register($input: RegisterInput!) {
       register(input: $input) {
@@ -61,6 +63,7 @@ export async function registerUser(input: { name: string; email: string; passwor
           email
           name
           role
+          roles
           is_active
         }
       }
@@ -79,6 +82,7 @@ export async function getCurrentUser(token: string) {
         email
         name
         role
+        roles
         is_active
       }
     }
@@ -328,4 +332,262 @@ export async function exportReport(token: string, input: {
   
   const data = await fetchGraphQL(query, { input }, token);
   return data.exportReport;
+}
+
+// IndusIT Dashboard API functions
+// Automation Metadata
+export async function getAutomationMetadata(token: string, id: string) {
+  const query = `
+    query AutomationMetadata($id: ID!) {
+      automationMetadata(id: $id) {
+        id
+        apaid
+        rpa_name
+        priority
+        description
+        lifecycle_status
+        frequency
+        avg_volumes_expected
+        sla
+        interfaces
+        screen_scraping
+        design_documents_path
+        code_repo_url
+        code_repo_branch
+        input_source
+        input_source_details
+        input_type
+        camunda_flow_chart_url
+        ace_url
+        tech
+        connecting_to_db
+        db_table_names
+        sme
+        business_owner
+        sme_sign_off_url
+        dev_contacts
+        design_contacts
+        functional_asg_spocs
+        house_keeping_activities
+        addl_details
+        business_impact
+        category
+        product_impacted
+        journey_impacted
+        cp_impacted
+        support_queue_id
+        open_stories
+        created_at
+        updated_at
+      }
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, { id }, token);
+  return data.automationMetadata;
+}
+
+export async function getAllAutomationMetadata(token: string) {
+  const query = `
+    query {
+      allAutomationMetadata {
+        id
+        apaid
+        rpa_name
+        priority
+        lifecycle_status
+        category
+        created_at
+        updated_at
+      }
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, {}, token);
+  return data.allAutomationMetadata;
+}
+
+export async function getAutomationMetadataByApaid(token: string, apaid: string) {
+  const query = `
+    query AutomationMetadataByApaid($apaid: String!) {
+      automationMetadataByApaid(apaid: $apaid) {
+        id
+        apaid
+        rpa_name
+        priority
+        description
+        lifecycle_status
+        frequency
+        avg_volumes_expected
+        sla
+        interfaces
+        screen_scraping
+        design_documents_path
+        code_repo_url
+        code_repo_branch
+        input_source
+        input_source_details
+        input_type
+        camunda_flow_chart_url
+        ace_url
+        tech
+        connecting_to_db
+        db_table_names
+        sme
+        business_owner
+        sme_sign_off_url
+        dev_contacts
+        design_contacts
+        functional_asg_spocs
+        house_keeping_activities
+        addl_details
+        business_impact
+        category
+        product_impacted
+        journey_impacted
+        cp_impacted
+        support_queue_id
+        open_stories
+        created_at
+        updated_at
+      }
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, { apaid }, token);
+  return data.automationMetadataByApaid;
+}
+
+export async function createAutomationMetadata(token: string, input: any) {
+  const query = `
+    mutation CreateAutomationMetadata($input: AutomationMetadataInput!) {
+      createAutomationMetadata(input: $input) {
+        id
+        apaid
+        rpa_name
+      }
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, { input }, token);
+  return data.createAutomationMetadata;
+}
+
+export async function updateAutomationMetadata(token: string, id: string, input: any) {
+  const query = `
+    mutation UpdateAutomationMetadata($id: ID!, $input: AutomationMetadataInput!) {
+      updateAutomationMetadata(id: $id, input: $input) {
+        id
+        apaid
+        rpa_name
+        updated_at
+      }
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, { id, input }, token);
+  return data.updateAutomationMetadata;
+}
+
+export async function deleteAutomationMetadata(token: string, id: string) {
+  const query = `
+    mutation DeleteAutomationMetadata($id: ID!) {
+      deleteAutomationMetadata(id: $id)
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, { id }, token);
+  return data.deleteAutomationMetadata;
+}
+
+// Execution Data
+export async function getAllExecutionData(token: string) {
+  const query = `
+    query {
+      allExecutionData {
+        id
+        apaid
+        current_status
+        last_successful_execution
+        volumes_daily
+        volumes_monthly
+        created_at
+        updated_at
+      }
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, {}, token);
+  return data.allExecutionData;
+}
+
+export async function getExecutionDataByApaid(token: string, apaid: string) {
+  const query = `
+    query ExecutionDataByApaid($apaid: String!) {
+      executionDataByApaid(apaid: $apaid) {
+        id
+        apaid
+        current_status
+        last_successful_execution
+        volumes_daily
+        volumes_monthly
+        business_impact
+        infra_details
+        web_service_url
+        app_url
+        created_at
+        updated_at
+      }
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, { apaid }, token);
+  return data.executionDataByApaid;
+}
+
+// Dashboard Stats
+export async function getUserDashboardStats(token: string) {
+  const query = `
+    query {
+      userDashboardStats {
+        automations_count_by_category {
+          category
+          count
+        }
+        volumes_processed_today
+        p1_bots_status {
+          apaid
+          rpa_name
+          status
+        }
+      }
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, {}, token);
+  return data.userDashboardStats;
+}
+
+export async function getAdminDashboardStats(token: string) {
+  const query = `
+    query {
+      adminDashboardStats {
+        automations_count_by_category {
+          category
+          count
+        }
+        volumes_processed_today
+        p1_bots_status {
+          apaid
+          rpa_name
+          status
+        }
+        last_dr_date
+        current_vulns
+      }
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, {}, token);
+  return data.adminDashboardStats;
 }

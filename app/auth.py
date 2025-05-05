@@ -55,12 +55,27 @@ async def get_current_user(token: str):
     return user
 
 def is_admin(user):
-    return user["role"] == "admin"
+    return user["role"] == "admin" or "admin" in user.get("roles", [])
+
+def has_role(user, role):
+    if user["role"] == role:
+        return True
+    if "roles" in user and isinstance(user["roles"], list):
+        return role in user["roles"]
+    return False
 
 def admin_required(user):
     if not is_admin(user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin privileges required"
+        )
+    return True
+
+def role_required(user, role):
+    if not has_role(user, role):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"{role} privileges required"
         )
     return True

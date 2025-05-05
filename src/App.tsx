@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,6 +19,11 @@ import ReportFormStep1 from "./pages/Reports/ReportFormStep1";
 import MetricsPage from "./pages/Metrics/MetricsPage";
 import MetricForm from "./pages/Metrics/MetricForm";
 import UnderConstruction from "./pages/UnderConstruction";
+
+// IndusIT Dashboard
+import IndusITDashboard from "./pages/IndusIT/IndusITDashboard";
+import AutomationsList from "./pages/IndusIT/AutomationsList";
+import AutomationDetail from "./pages/IndusIT/AutomationDetail";
 
 // Layout
 import AppLayout from "./components/AppLayout";
@@ -102,7 +106,26 @@ const App = () => (
             </AppLayout>
           } />
           
-          {/* New dashboard pages */}
+          {/* IndusIT Dashboard routes */}
+          <Route path="/indusit-dashboard" element={
+            <AppLayout>
+              <IndusITDashboard />
+            </AppLayout>
+          } />
+          
+          <Route path="/indusit/automations" element={
+            <AppLayout>
+              <AutomationsList />
+            </AppLayout>
+          } />
+          
+          <Route path="/indusit/automations/:apaid" element={
+            <AppLayout>
+              <AutomationDetail />
+            </AppLayout>
+          } />
+          
+          {/* Other dashboard pages */}
           <Route path="/incident-dashboard" element={
             <AppLayout>
               <UnderConstruction title="Incident Dashboard" />
@@ -112,12 +135,6 @@ const App = () => (
           <Route path="/pr-dashboard" element={
             <AppLayout>
               <UnderConstruction title="PR Dashboard" />
-            </AppLayout>
-          } />
-          
-          <Route path="/indusit-dashboard" element={
-            <AppLayout>
-              <UnderConstruction title="IndusIT Dashboard" />
             </AppLayout>
           } />
           

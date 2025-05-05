@@ -32,6 +32,11 @@ async def login_resolver(_, info, input):
     # Convert ObjectId to string
     user_id = str(user["_id"])
 
+    # Ensure roles are properly handled
+    user_roles = user.get("roles", [])
+    if not isinstance(user_roles, list):
+        user_roles = []
+
     return {
         "token": access_token,
         "user": {
@@ -39,7 +44,8 @@ async def login_resolver(_, info, input):
             "email": user["email"],
             "name": user["name"],
             "role": user["role"],
-            "is_active": user["is_active"]
+            "roles": user_roles,
+            "is_active": user.get("is_active", True)
         }
     }
 
@@ -50,6 +56,7 @@ async def register_resolver(_, info, input):
     password = input.get("password")
     name = input.get("name")
     role_name = input.get("role")
+    roles = input.get("roles", [])
 
     # Validate email
     try:
@@ -89,6 +96,7 @@ async def register_resolver(_, info, input):
         "password": hashed_password,
         "name": name,
         "role": role_name,
+        "roles": roles,
         "is_active": True
     }
 
@@ -109,6 +117,7 @@ async def register_resolver(_, info, input):
             "email": email,
             "name": name,
             "role": role_name,
+            "roles": roles,
             "is_active": True
         }
     }
@@ -129,12 +138,18 @@ async def me_resolver(_, info):
     token = auth_header.split(" ")[1]
     user = await get_current_user(token)
 
+    # Ensure roles are properly handled
+    user_roles = user.get("roles", [])
+    if not isinstance(user_roles, list):
+        user_roles = []
+
     return {
         "id": user["_id"],
         "email": user["email"],
         "name": user["name"],
         "role": user["role"],
-        "is_active": user["is_active"]
+        "roles": user_roles,
+        "is_active": user.get("is_active", True)
     }
 
 async def roles_resolver(_, info):
@@ -155,7 +170,7 @@ async def roles_resolver(_, info):
     user = await get_current_user(token)
 
     # Check if user is admin
-    if user["role"] != "admin":
+    if user["role"] != "admin" and "admin" not in user.get("roles", []):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not enough permissions"
