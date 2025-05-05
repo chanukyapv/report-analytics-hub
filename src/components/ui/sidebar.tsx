@@ -1,3 +1,4 @@
+
 import {
   LayoutDashboard,
   ListChecks,
@@ -5,7 +6,7 @@ import {
   Settings,
   Users,
 } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -40,8 +41,8 @@ interface User {
 }
 
 const Sidebar = ({ navItems }: SidebarProps) => {
-  const pathname = usePathname();
-  const router = useRouter();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -74,13 +75,13 @@ const Sidebar = ({ navItems }: SidebarProps) => {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push("/settings")}>
+            <DropdownMenuItem onClick={() => navigate("/settings")}>
               Settings
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
               localStorage.removeItem("token");
               localStorage.removeItem("user");
-              router.push("/login");
+              navigate("/login");
             }}>
               Logout
             </DropdownMenuItem>
@@ -91,9 +92,9 @@ const Sidebar = ({ navItems }: SidebarProps) => {
         {navItems.map((item) => (
           <Button
             key={item.href}
-            variant={pathname === item.href ? "secondary" : "ghost"}
+            variant={location.pathname === item.href ? "secondary" : "ghost"}
             className="w-full justify-start"
-            onClick={() => router.push(item.href)}
+            onClick={() => navigate(item.href)}
           >
             <item.icon className="mr-2 h-4 w-4" />
             {item.title}
@@ -107,9 +108,9 @@ const Sidebar = ({ navItems }: SidebarProps) => {
           </h2>
           <div className="space-y-1">
             <Button
-              variant={pathname === "/admin/users" ? "secondary" : "ghost"}
+              variant={location.pathname === "/admin/users" ? "secondary" : "ghost"}
               className="w-full justify-start"
-              onClick={() => router.push("/admin/users")}
+              onClick={() => navigate("/admin/users")}
             >
               <Users className="mr-2 h-4 w-4" />
               User Management
