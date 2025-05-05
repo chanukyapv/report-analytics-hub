@@ -16,17 +16,16 @@ from resolvers import schema
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("🚀 App is starting up...")
-    # Initialize exports directory
-    export_dir = os.environ.get("EXPORT_DIR", "./exports")
-    os.makedirs(export_dir, exist_ok=True)
+    # Initialize exports directory if needed
+    os.makedirs("./exports", exist_ok=True)
     yield
     print("🛑 App is shutting down...")
 
 # Create FastAPI app
 app = FastAPI(
     lifespan=lifespan,
-    title="QLA1 Dashboard API",
-    description="API for the QLA1 Dashboard application",
+    title="QLA Dashboard API",
+    description="API for the QLA Dashboard application",
     version="1.0.0",
 )
 
@@ -41,3 +40,8 @@ app.add_middleware(
 
 # Mount GraphQL route
 app.add_route("/graphql", GraphQL(schema, debug=True))
+
+# Simple health check endpoint
+@app.get("/")
+async def root():
+    return {"status": "ok", "message": "QLA Dashboard API is running"}

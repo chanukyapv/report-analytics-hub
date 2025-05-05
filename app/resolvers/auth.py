@@ -1,15 +1,46 @@
 
 from ariadne import convert_kwargs_to_snake_case
 from fastapi import HTTPException, status
-from app.db.mongodb import users_collection, serialize_doc
-from app.auth import verify_password, get_password_hash, create_access_token, validate_bt_email
 from datetime import datetime
+import jwt
+import os
+
+# Mock database for users - replace with your actual database
+users_db = {}
+
+# Secret key for JWT
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here")
+ALGORITHM = "HS256"
+
+def verify_password(plain_password, password_hash):
+    # In a real application, use proper password hashing
+    return plain_password == password_hash
+
+def get_password_hash(password):
+    # In a real application, use proper password hashing
+    return password
+
+def create_access_token(data):
+    to_encode = data.copy()
+    token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return token
+
+def validate_bt_email(email):
+    if not email.endswith("@example.com"):  # Replace with your domain validation
+        raise HTTPException(status_code=400, detail="Email domain not allowed")
+
+def serialize_doc(user):
+    # Convert MongoDB document to dict and handle _id
+    if user and '_id' in user:
+        user['id'] = str(user['_id'])
+        del user['_id']
+    return user
 
 @convert_kwargs_to_snake_case
 async def login_resolver(_, info, email, password):
     """Login mutation"""
     # Check if user exists
-    user = users_collection.find_one({"email": email})
+    user = users_db.get(email)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
@@ -24,17 +55,13 @@ async def login_resolver(_, info, email, password):
     # Update last login and login count
     now = datetime.utcnow()
     login_count = user.get("login_count", 0) + 1
-    users_collection.update_one(
-        {"_id": user["_id"]},
-        {"$set": {"last_login": now, "login_count": login_count}}
-    )
-    
-    # Get updated user
-    user = users_collection.find_one({"email": email})
+    user["last_login"] = now
+    user["login_count"] = login_count
+    users_db[email] = user
     
     return {
         "token": token,
-        "user": serialize_doc(user)
+        "user": user
     }
 
 @convert_kwargs_to_snake_case
@@ -44,30 +71,32 @@ async def register_resolver(_, info, input):
     password = input.get("password")
     name = input.get("name")
     
-    # Validate BT email
+    # Validate BT email (optional in this demo)
     try:
         validate_bt_email(email)
     except HTTPException as e:
-        raise e
+        print(f"Email validation warning: {str(e.detail)}")
     
     # Check if user exists
-    if users_collection.find_one({"email": email}):
+    if email in users_db:
         raise HTTPException(status_code=400, detail="User with this email already exists")
     
     # Create user
     now = datetime.utcnow()
     user = {
+        "id": f"user_{len(users_db) + 1}",
         "name": name,
         "email": email,
         "password_hash": get_password_hash(password),
         "role": "user",  # Default role
+        "is_active": True,  # Set user as active
         "created_at": now,
         "last_login": now,
         "login_count": 1
     }
     
-    result = users_collection.insert_one(user)
-    user["_id"] = result.inserted_id
+    # Store user in mock DB
+    users_db[email] = user
     
     # Generate JWT token
     token_data = {"sub": email}
@@ -75,7 +104,7 @@ async def register_resolver(_, info, input):
     
     return {
         "token": token,
-        "user": serialize_doc(user)
+        "user": user
     }
 
 @convert_kwargs_to_snake_case
@@ -87,15 +116,25 @@ async def me_resolver(_, info):
     
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Not authenticated")
-        
-    # Get current user from context (usually set by a middleware)
-    user = context.get("user")
-    if not user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
     
-    return serialize_doc(user)
+    # Get token from header
+    token = auth_header.replace("Bearer ", "")
+    
+    try:
+        # Decode JWT
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        
+        # Get user from database
+        user = users_db.get(email)
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        
+        return user
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 @convert_kwargs_to_snake_case
 async def roles_resolver(_, info):
     """Get available roles"""
-    return ["user", "SDuser", "SDadmin", "IDuser", "IDadmin", "appadmin"]
+    return ["user", "admin", "editor"]

@@ -1,119 +1,91 @@
 
-// Basic API request functions
+// API utility functions to interact with GraphQL backend
 
-export async function loginUser(credentials: { email: string; password: string }) {
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/graphql`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: `
-          mutation Login($email: String!, $password: String!) {
-            login(email: $email, password: $password) {
-              token
-              user {
-                id
-                name
-                email
-                role
-              }
-            }
-          }
-        `,
-        variables: {
-          email: credentials.email,
-          password: credentials.password,
-        },
-      }),
-    });
+const API_URL = "http://localhost:8000/graphql";
 
-    const data = await response.json();
-    
-    if (data.errors) {
-      throw new Error(data.errors[0].message || 'Login failed');
-    }
-    
-    return data.data.login;
-  } catch (error) {
-    throw error;
+// Helper function for GraphQL requests
+async function fetchGraphQL(query: string, variables = {}, token?: string) {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
   }
+  
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      query,
+      variables,
+    }),
+  });
+  
+  const json = await response.json();
+  
+  if (json.errors) {
+    console.error('GraphQL Error:', json.errors);
+    throw new Error(json.errors[0].message);
+  }
+  
+  return json.data;
 }
 
-export async function registerUser(userData: { name: string; email: string; password: string }) {
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/graphql`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: `
-          mutation Register($name: String!, $email: String!, $password: String!) {
-            register(input: { name: $name, email: $email, password: $password }) {
-              token
-              user {
-                id
-                name
-                email
-                role
-              }
-            }
-          }
-        `,
-        variables: {
-          name: userData.name,
-          email: userData.email,
-          password: userData.password,
-        },
-      }),
-    });
-
-    const data = await response.json();
-    
-    if (data.errors) {
-      throw new Error(data.errors[0].message || 'Registration failed');
+// Auth functions
+export async function loginUser(email: string, password: string) {
+  const query = `
+    mutation Login($email: String!, $password: String!) {
+      login(email: $email, password: $password) {
+        token
+        user {
+          id
+          email
+          name
+          role
+          is_active
+        }
+      }
     }
-    
-    return data.data.register;
-  } catch (error) {
-    throw error;
-  }
+  `;
+  
+  const data = await fetchGraphQL(query, { email, password });
+  return data.login;
 }
 
-// Function to get user data with token
-export async function getUserData(token: string) {
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/graphql`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        query: `
-          query {
-            me {
-              id
-              name
-              email
-              role
-              lastLogin
-            }
-          }
-        `
-      }),
-    });
-
-    const data = await response.json();
-    
-    if (data.errors) {
-      throw new Error(data.errors[0].message || 'Failed to fetch user data');
+export async function registerUser(input: { name: string; email: string; password: string; }) {
+  const query = `
+    mutation Register($input: RegisterInput!) {
+      register(input: $input) {
+        token
+        user {
+          id
+          email
+          name
+          role
+          is_active
+        }
+      }
     }
-    
-    return data.data.me;
-  } catch (error) {
-    throw error;
-  }
+  `;
+  
+  const data = await fetchGraphQL(query, { input });
+  return data.register;
+}
+
+export async function getCurrentUser(token: string) {
+  const query = `
+    query {
+      me {
+        id
+        email
+        name
+        role
+        is_active
+      }
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, {}, token);
+  return data.me;
 }
