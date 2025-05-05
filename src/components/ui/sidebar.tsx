@@ -60,6 +60,20 @@ const Sidebar = ({ navItems }: SidebarProps) => {
     }
   }, []);
 
+  // Debugging
+  useEffect(() => {
+    if (currentUser) {
+      console.log("Current user:", currentUser);
+      console.log("User roles:", currentUser.roles);
+      console.log("Is superadmin?", currentUser.roles?.includes('superadmin'));
+    }
+  }, [currentUser]);
+
+  const handleAdminClick = () => {
+    console.log("Admin link clicked, navigating to /admin/users");
+    navigate("/admin/users");
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="px-6 py-4">
@@ -101,7 +115,7 @@ const Sidebar = ({ navItems }: SidebarProps) => {
           </Button>
         ))}
       </div>
-      {currentUser && currentUser.roles && currentUser.roles.includes('superadmin') && (
+      {currentUser && currentUser.roles && Array.isArray(currentUser.roles) && currentUser.roles.includes('superadmin') && (
         <div className="px-3 py-2">
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
             Admin Tools
@@ -110,7 +124,7 @@ const Sidebar = ({ navItems }: SidebarProps) => {
             <Button
               variant={location.pathname === "/admin/users" ? "secondary" : "ghost"}
               className="w-full justify-start"
-              onClick={() => navigate("/admin/users")}
+              onClick={handleAdminClick}
             >
               <Users className="mr-2 h-4 w-4" />
               User Management
