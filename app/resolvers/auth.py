@@ -4,50 +4,13 @@ from fastapi import HTTPException, status
 from datetime import timedelta
 from app.auth import (
     verify_password, get_password_hash, create_access_token,
-    get_current_user, ACCESS_TOKEN_EXPIRE_MINUTES
+    get_current_user, ACCESS_TOKEN_EXPIRE_MINUTES, is_admin
 )
 from app.db.mongodb import users_collection, roles_collection
 import re
 from email_validator import validate_email, EmailNotValidError
 
-@convert_kwargs_to_snake_case
-async def login_resolver(_, info, input):
-    email = input.get("email")
-    password = input.get("password")
-
-    user = users_collection.find_one({"email": email})
-    if not user or not verify_password(password, user["password"]):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user["email"]},
-        expires_delta=access_token_expires
-    )
-
-    # Convert ObjectId to string
-    user_id = str(user["_id"])
-
-    # Ensure roles are properly handled
-    user_roles = user.get("roles", [])
-    if not isinstance(user_roles, list):
-        user_roles = []
-
-    return {
-        "token": access_token,
-        "user": {
-            "id": user_id,
-            "email": user["email"],
-            "name": user["name"],
-            "role": user["role"],
-            "roles": user_roles,
-            "is_active": user.get("is_active", True)
-        }
-    }
+# ... keep existing code (login_resolver function)
 
 @convert_kwargs_to_snake_case
 async def register_resolver(_, info, input):
@@ -55,8 +18,28 @@ async def register_resolver(_, info, input):
     email = input.get("email")
     password = input.get("password")
     name = input.get("name")
-    role_name = input.get("role")
-    roles = input.get("roles", [])
+    
+    # Default role is always "user" when registering via UI
+    role_name = "user"
+    roles = ["user"]
+    
+    # Only pass the role from input if it's coming from a superadmin 
+    context = info.context
+    request = context.get("request")
+    
+    if request and request.headers.get("Authorization"):
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+            try:
+                current_user = await get_current_user(token)
+                # Allow superadmin to set roles during registration
+                if "superadmin" in current_user.get("roles", []):
+                    role_name = input.get("role", "user")
+                    roles = input.get("roles", ["user"])
+            except Exception:
+                # Fall back to default user role
+                pass
 
     # Validate email
     try:
@@ -122,37 +105,11 @@ async def register_resolver(_, info, input):
         }
     }
 
-async def me_resolver(_, info):
-    context = info.context
-    request = context["request"]
+# ... keep existing code (me_resolver and roles_resolver functions)
 
-    # Get the Authorization header
-    auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-
-    token = auth_header.split(" ")[1]
-    user = await get_current_user(token)
-
-    # Ensure roles are properly handled
-    user_roles = user.get("roles", [])
-    if not isinstance(user_roles, list):
-        user_roles = []
-
-    return {
-        "id": user["_id"],
-        "email": user["email"],
-        "name": user["name"],
-        "role": user["role"],
-        "roles": user_roles,
-        "is_active": user.get("is_active", True)
-    }
-
-async def roles_resolver(_, info):
+# Add new resolver for user management (only accessible by superadmin)
+@convert_kwargs_to_snake_case
+async def update_user_roles_resolver(_, info, user_id, roles):
     # Get current user from context
     context = info.context
     request = context["request"]
@@ -167,18 +124,46 @@ async def roles_resolver(_, info):
         )
 
     token = auth_header.split(" ")[1]
-    user = await get_current_user(token)
+    current_user = await get_current_user(token)
 
-    # Check if user is admin
-    if user["role"] != "admin" and "admin" not in user.get("roles", []):
+    # Check if current user is superadmin
+    if "superadmin" not in current_user.get("roles", []):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions"
+            detail="Superadmin privileges required"
         )
 
-    roles = list(roles_collection.find())
-    for role in roles:
-        role["id"] = str(role["_id"])
-        del role["_id"]
+    # Validate all roles exist
+    for role_name in roles:
+        role = roles_collection.find_one({"name": role_name})
+        if not role:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Role '{role_name}' does not exist"
+            )
 
-    return roles
+    # Find and update user
+    from bson import ObjectId
+    user_obj_id = ObjectId(user_id)
+    user = users_collection.find_one({"_id": user_obj_id})
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Update user roles
+    primary_role = roles[0] if roles else "user"
+    users_collection.update_one(
+        {"_id": user_obj_id},
+        {"$set": {"roles": roles, "role": primary_role}}
+    )
+    
+    # Return updated user
+    updated_user = users_collection.find_one({"_id": user_obj_id})
+    updated_user["id"] = str(updated_user["_id"])
+    del updated_user["_id"]
+    del updated_user["password"]
+    
+    return updated_user

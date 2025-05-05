@@ -1,4 +1,3 @@
-
 type User {
   id: ID!
   email: String!
@@ -356,6 +355,11 @@ input MicrobotRegisterInput {
   apaid: [String!]!
 }
 
+input UpdateUserRolesInput {
+  user_id: ID!
+  roles: [String!]!
+}
+
 type AuthPayload {
   token: String
   user: User
@@ -443,6 +447,7 @@ type Mutation {
   # Auth
   login(input: LoginInput!): AuthPayload!
   register(input: RegisterInput!): AuthPayload!
+  updateUserRoles(user_id: ID!, roles: [String!]!): User!
 
   # Metrics
   createMetric(input: MetricInput!): Metric!

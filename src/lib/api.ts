@@ -1,4 +1,3 @@
-
 // API utility functions to interact with GraphQL backend
 
 const API_URL = "http://localhost:8000/graphql";
@@ -590,4 +589,23 @@ export async function getAdminDashboardStats(token: string) {
   
   const data = await fetchGraphQL(query, {}, token);
   return data.adminDashboardStats;
+}
+
+// User management (superadmin only)
+export async function updateUserRoles(token: string, userId: string, roles: string[]) {
+  const query = `
+    mutation UpdateUserRoles($userId: ID!, $roles: [String!]!) {
+      updateUserRoles(user_id: $userId, roles: $roles) {
+        id
+        email
+        name
+        role
+        roles
+        is_active
+      }
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, { userId, roles }, token);
+  return data.updateUserRoles;
 }

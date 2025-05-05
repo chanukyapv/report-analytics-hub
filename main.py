@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -11,11 +10,14 @@ import os
 # Import schema from resolvers
 from app.resolvers import schema
 from app.middleware import logging_middleware, rate_limiting_middleware, error_handling_middleware
+from app.db.init_db import initialize_database
 
 # ✅ Lifespan (startup/shutdown hooks)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("🚀 App is starting up...")
+    # Initialize database with roles and superadmin
+    initialize_database()
     # Initialize exports directory
     export_dir = os.environ.get("EXPORT_DIR", "./exports")
     os.makedirs(export_dir, exist_ok=True)

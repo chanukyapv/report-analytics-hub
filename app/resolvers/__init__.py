@@ -1,6 +1,5 @@
-
 from ariadne import MutationType, QueryType, ObjectType, make_executable_schema
-from .auth import login_resolver, register_resolver, me_resolver, roles_resolver
+from .auth import login_resolver, register_resolver, me_resolver, roles_resolver, update_user_roles_resolver
 from .metrics import (
     metrics_resolver, metric_resolver, create_metric_resolver,
     update_metric_resolver, delete_metric_resolver
@@ -73,6 +72,7 @@ query.set_field("me", me_resolver)
 query.set_field("roles", roles_resolver)
 mutation.set_field("login", login_resolver)
 mutation.set_field("register", register_resolver)
+mutation.set_field("updateUserRoles", update_user_roles_resolver)  # Add the new resolver
 
 # Metrics resolvers
 query.set_field("metrics", metrics_resolver)
