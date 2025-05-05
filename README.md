@@ -1,102 +1,90 @@
 
-# QLA1 Dashboard Application
+# QLA1 Dashboard Backend
 
-QLA1 Dashboard is a comprehensive monitoring and governance tool for tracking service metrics and automations across multiple dashboards.
+This backend powers the QLA1 Dashboard, providing a GraphQL API for tracking performance metrics, generating reports, and visualizing performance insights across multiple dashboards.
 
-## Features
+## Available Dashboards
 
 - **Service Dashboard**: Track, visualize, and report on service metrics
-- **IndusIT Dashboard**: Governance tool for automation onboarding and monitoring
-- **Role-based Access Control**: Granular permissions system with request workflow
-- **Admin Panel**: User management and system statistics
+- **Incident Dashboard** (Coming Soon)
+- **PR Dashboard** (Coming Soon)
+- **IndusIT Dashboard** (Coming Soon)
+- **Security Dashboard** (Coming Soon)
 
 ## Tech Stack
 
-- **Backend**:
-  - FastAPI
-  - Ariadne (GraphQL)
-  - MongoDB
-  - Python 3.9+
-
-- **Frontend**:
-  - React
-  - TypeScript
-  - TailwindCSS
-  - shadcn/ui components
-  - Recharts for visualizations
-
-## Project Structure
-
-This project is organized into two main directories:
-
-- **`/app`**: Contains all backend code (FastAPI, GraphQL resolvers, database models)
-- **`/client`**: Contains all frontend code (React components, hooks, utilities)
+- **FastAPI**: High-performance web framework
+- **Ariadne**: Schema-first GraphQL implementation
+- **MongoDB**: Database for storing metrics and reports
+- **Python 3.9+**: Programming language
+- **React & TypeScript**: Frontend
 
 ## Getting Started
 
-1. Start the backend server (see instructions in `/app/README.md`)
-2. Start the frontend application (see instructions in `/client/README.md`)
+1. **Install dependencies**
 
-## User Roles
+```bash
+pip install -r requirements.txt
+```
 
-- **appadmin**: Full access to all features, dashboards and user management
-- **SDAdmin**: Can manage service dashboard metrics and reports
-- **SDUser**: Can view service dashboard data
-- **IDAdmin**: Can manage IndusIT dashboard data
-- **IDUser**: Can view IndusIT dashboard data
-- **user**: Basic access (can request additional roles)
+2. **Environment Variables**
 
-## Development Notes
+Set the following environment variables:
 
-### Recommended .gitignore Patterns
-Since we cannot modify the .gitignore file directly, here are patterns that should be ignored:
+- `MONGO_URI`: MongoDB connection string (default: mongodb://localhost:27017)
+- `SECRET_KEY`: JWT secret key for authentication
+- `EXPORT_DIR`: Directory for storing exported reports (default: ./exports)
+
+3. **Run the Application**
+
+```bash
+uvicorn main:app --reload
+```
+
+## API Usage
+
+The application exposes a GraphQL API at `/graphql` which can be explored using GraphQL Playground.
+
+### Authentication
+
+All API calls require authentication except for login and register. 
+Pass the JWT token in the Authorization header:
 
 ```
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-venv/
-.env
-
-# Node
-node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-.pnp/
-.pnp.js
-.npm
-.yarn-integrity
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
+Authorization: Bearer <token>
 ```
+
+### Main Features
+
+- User authentication (register, login)
+- Metric management
+- Weekly and quarterly reports
+- Service metrics dashboard with summary statistics
+- Export reports in various formats (CSV, Excel, PDF)
+- FY configuration management
+- Report drafting with auto-save functionality
+
+## Initial Setup
+
+When first running the application, you'll need to:
+
+1. Register an admin user
+2. Create FY configurations
+3. Create metrics
+4. Start creating reports
+
+## Data Model
+
+- **Users**: Authentication and authorization
+- **Metrics**: Performance indicators being tracked
+- **Weekly Reports**: Period-specific metric values with comments
+- **FY Configs**: Fiscal year configuration with quarters and weeks
+
+## Access Control
+
+- **Admin**: Can create/update metrics, create reports, manage FY configs
+- **User**: Can view dashboard and download reports
+
+## Date Format
+
+The application uses DD-MM-YYYY date format for all date-related fields.
