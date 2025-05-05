@@ -170,6 +170,31 @@ export async function createMetric(token: string, input: {
   return data.createMetric;
 }
 
+export async function updateMetric(token: string, id: string, input: { 
+  name: string; 
+  baseline: number;
+  target: number;
+  actual_formula: string;
+  unit: string;
+}) {
+  const query = `
+    mutation UpdateMetric($id: ID!, $input: MetricInput!) {
+      updateMetric(id: $id, input: $input) {
+        id
+        name
+        baseline
+        target
+        actual_formula
+        unit
+        created_by
+      }
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, { id, input }, token);
+  return data.updateMetric;
+}
+
 // Report functions
 export async function getWeeklyReports(token: string, fy?: string, quarter?: string, week_date?: string) {
   const query = `

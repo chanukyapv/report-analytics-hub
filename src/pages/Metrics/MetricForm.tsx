@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { getMetrics, createMetric } from "@/lib/api";
+import { getMetrics, createMetric, updateMetric } from "@/lib/api";
 import { ArrowLeft, Save } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -55,7 +55,12 @@ const MetricForm = () => {
     setIsSaving(true);
     
     try {
-      await createMetric(token, data);
+      if (isEditing && id) {
+        // Call updateMetric instead of createMetric when editing
+        await updateMetric(token, id, data);
+      } else {
+        await createMetric(token, data);
+      }
       toast.success(`Metric ${isEditing ? "updated" : "created"} successfully!`);
       navigate("/metrics");
     } catch (error) {

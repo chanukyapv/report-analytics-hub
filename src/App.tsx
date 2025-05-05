@@ -20,6 +20,9 @@ import MetricsPage from "./pages/Metrics/MetricsPage";
 import MetricForm from "./pages/Metrics/MetricForm";
 import UnderConstruction from "./pages/UnderConstruction";
 
+// Admin
+import UserManagement from "./pages/Admin/UserManagement";
+
 // IndusIT Dashboard
 import IndusITDashboard from "./pages/IndusIT/IndusITDashboard";
 import AutomationsList from "./pages/IndusIT/AutomationsList";
@@ -55,6 +58,13 @@ const App = () => (
           <Route path="/dashboard" element={
             <AppLayout>
               <Dashboard />
+            </AppLayout>
+          } />
+          
+          {/* Admin routes */}
+          <Route path="/admin/users" element={
+            <AppLayout>
+              <UserManagement />
             </AppLayout>
           } />
           
