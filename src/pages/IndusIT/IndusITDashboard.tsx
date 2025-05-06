@@ -76,7 +76,7 @@ const IndusITDashboard = () => {
     }
   }, []);
   
-  // Check for empty automations data - FIXED: Replacing onSuccess with meta.onSuccess
+  // Check for empty automations data - FIXED: Moving both onSuccess and onError inside meta
   const { data: automationsData } = useQuery({
     queryKey: ['indusit-automations'],
     queryFn: async () => {
@@ -92,11 +92,11 @@ const IndusITDashboard = () => {
           console.log("No automation data returned, using demo data");
           setUseDemo(true);
         }
+      },
+      onError: (error) => {
+        console.error("Error fetching automations:", error);
+        setUseDemo(true);
       }
-    },
-    onError: (error) => {
-      console.error("Error fetching automations:", error);
-      setUseDemo(true);
     }
   });
   
