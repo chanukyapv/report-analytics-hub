@@ -57,6 +57,7 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const data = await getServiceMetricDashboard(token);
+        console.log("Dashboard data:", data);
         setDashboardData(data);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
@@ -91,7 +92,8 @@ const Dashboard = () => {
   };
   
   const getStatusBadge = (status: string) => {
-    switch (status) {
+    console.log("Getting status badge for:", status);
+    switch (status?.toLowerCase()) {
       case "green": 
         return <Badge className="bg-green-500">Target Achieved</Badge>;
       case "amber": 
@@ -99,7 +101,7 @@ const Dashboard = () => {
       case "red": 
         return <Badge className="bg-red-500">Below Baseline</Badge>;
       default:
-        return <Badge>Unknown</Badge>;
+        return <Badge className="bg-gray-400">Unknown</Badge>;
     }
   };
   
@@ -234,7 +236,9 @@ const Dashboard = () => {
                   <TableCell>{metric.value} {metric.unit}</TableCell>
                   <TableCell>{metric.target} {metric.unit}</TableCell>
                   <TableCell>{metric.baseline} {metric.unit}</TableCell>
-                  <TableCell>{getStatusBadge(metric.status || '')}</TableCell>
+                  <TableCell>
+                    {getStatusBadge(metric.status || '')}
+                  </TableCell>
                   <TableCell>{metric.comment || "-"}</TableCell>
                 </TableRow>
               ))}

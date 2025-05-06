@@ -51,6 +51,9 @@ const Sidebar = ({ navItems }: SidebarProps) => {
       try {
         const user = JSON.parse(userJson);
         setCurrentUser(user);
+        console.log("Sidebar - Current user:", user);
+        console.log("Sidebar - User roles:", user.roles);
+        console.log("Sidebar - Is superadmin?", user.roles?.includes('superadmin'));
       } catch (error) {
         console.error("Error parsing user from localStorage:", error);
         setCurrentUser(null);
@@ -60,19 +63,14 @@ const Sidebar = ({ navItems }: SidebarProps) => {
     }
   }, []);
 
-  // Debugging
-  useEffect(() => {
-    if (currentUser) {
-      console.log("Current user:", currentUser);
-      console.log("User roles:", currentUser.roles);
-      console.log("Is superadmin?", currentUser.roles?.includes('superadmin'));
-    }
-  }, [currentUser]);
-
   const handleAdminClick = () => {
     console.log("Admin link clicked, navigating to /admin/users");
     navigate("/admin/users");
   };
+
+  // Check if user has superadmin role
+  const isSuperAdmin = currentUser?.roles?.includes('superadmin');
+  console.log("Is superadmin in sidebar check:", isSuperAdmin);
 
   return (
     <div className="flex flex-col h-full">
@@ -115,7 +113,7 @@ const Sidebar = ({ navItems }: SidebarProps) => {
           </Button>
         ))}
       </div>
-      {currentUser && currentUser.roles && Array.isArray(currentUser.roles) && currentUser.roles.includes('superadmin') && (
+      {isSuperAdmin && (
         <div className="px-3 py-2">
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
             Admin Tools
