@@ -12,10 +12,6 @@ def init_roles():
             "description": "Regular user with basic access"
         },
         {
-            "name": "admin",
-            "description": "Administrator with full access to service dashboard"
-        },
-        {
             "name": "SDuser",
             "description": "Service Dashboard user with read-only access"
         },
@@ -30,6 +26,30 @@ def init_roles():
         {
             "name": "IDadmin",
             "description": "IndusIT Dashboard admin with full access"
+        },
+        {
+            "name": "SCuser",
+            "description": "Security Dashboard user with read-only access"
+        },
+        {
+            "name": "SCadmin",
+            "description": "Security Dashboard admin with full access"
+        },
+        {
+            "name": "IRuser",
+            "description": "Incident Dashboard user with read-only access"
+        },
+        {
+            "name": "IRadmin",
+            "description": "Incident Dashboard admin with full access"
+        },
+        {
+            "name": "PRuser",
+            "description": "Problem Dashboard user with read-only access"
+        },
+        {
+            "name": "PRadmin",
+            "description": "Problem Dashboard admin with full access"
         },
         {
             "name": "superadmin",
@@ -48,29 +68,7 @@ def init_roles():
 
 def create_superadmin():
     """Create superadmin user if it doesn't exist"""
-    # Get credentials from environment or use defaults (only for development)
-    superadmin_email = os.environ.get("SUPERADMIN_EMAIL", "superadmin@example.com")
-    superadmin_password = os.environ.get("SUPERADMIN_PASSWORD", "Superadmin@123")
-    superadmin_name = os.environ.get("SUPERADMIN_NAME", "Super Administrator")
-    
-    existing_user = users_collection.find_one({"email": superadmin_email})
-    
-    if not existing_user:
-        user_data = {
-            "email": superadmin_email,
-            "password": get_password_hash(superadmin_password),
-            "name": superadmin_name,
-            "role": "superadmin",
-            "roles": ["superadmin", "admin", "SDadmin", "IDadmin"],
-            "is_active": True,
-            "created_at": datetime.utcnow()
-        }
-        
-        users_collection.insert_one(user_data)
-        print(f"✅ Created superadmin user: {superadmin_email}")
-        print(f"⚠️ Default superadmin password in use! Change it in production!")
-    else:
-        print(f"ℹ️ Superadmin already exists: {superadmin_email}")
+    # ... keep existing code (create_superadmin function)
 
 def initialize_database():
     """Initialize database with required roles and superadmin user"""
@@ -78,4 +76,3 @@ def initialize_database():
     init_roles()
     create_superadmin()
     print("✅ Database initialization complete")
-

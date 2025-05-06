@@ -395,6 +395,7 @@ type Query {
   # Auth
   me: User!
   roles: [Role!]!
+  allUsers: [User!]!
 
   # Metrics
   metrics: [Metric!]!

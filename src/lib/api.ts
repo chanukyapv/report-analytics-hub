@@ -91,6 +91,24 @@ export async function getCurrentUser(token: string) {
   return data.me;
 }
 
+export async function getAllUsers(token: string) {
+  const query = `
+    query {
+      allUsers {
+        id
+        email
+        name
+        role
+        roles
+        is_active
+      }
+    }
+  `;
+  
+  const data = await fetchGraphQL(query, {}, token);
+  return data.allUsers;
+}
+
 // Dashboard data
 export async function getServiceMetricDashboard(token: string) {
   const query = `

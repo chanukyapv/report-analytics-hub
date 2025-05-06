@@ -1,4 +1,3 @@
-
 from ariadne import convert_kwargs_to_snake_case
 from fastapi import HTTPException, status
 from datetime import timedelta
@@ -195,6 +194,54 @@ async def roles_resolver(_, info):
                 pass
 
     return []
+
+@convert_kwargs_to_snake_case
+async def all_users_resolver(_, info):
+    context = info.context
+    request = context.get("request")
+    
+    if request and request.headers.get("Authorization"):
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+            try:
+                current_user = await get_current_user(token)
+                # Check if current user is superadmin
+                if "superadmin" not in current_user.get("roles", []):
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="Superadmin privileges required"
+                    )
+                    
+                # Get all users
+                all_users = list(users_collection.find({}))
+                
+                # Convert ObjectId to string for each user
+                for user in all_users:
+                    user["id"] = str(user["_id"])
+                    del user["_id"]
+                    
+                    # Don't return password
+                    if "password" in user:
+                        del user["password"]
+                    
+                    # Ensure roles is properly included
+                    if "roles" not in user or not user["roles"]:
+                        user["roles"] = [user.get("role", "user")]
+                
+                return all_users
+                
+            except Exception as e:
+                print(f"Error in all_users_resolver: {str(e)}")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Authentication failed"
+                )
+
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Authentication required"
+    )
 
 @convert_kwargs_to_snake_case
 async def update_user_roles_resolver(_, info, user_id, roles):
