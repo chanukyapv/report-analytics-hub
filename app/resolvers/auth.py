@@ -1,4 +1,3 @@
-
 from ariadne import convert_kwargs_to_snake_case
 from fastapi import HTTPException, status
 from datetime import timedelta
@@ -10,7 +9,46 @@ from app.db.mongodb import users_collection, roles_collection
 import re
 from email_validator import validate_email, EmailNotValidError
 
-# ... keep existing code (login_resolver function)
+@convert_kwargs_to_snake_case
+async def login_resolver(_, info, input):
+    email = input.get("email")
+    password = input.get("password")
+    
+    user = users_collection.find_one({"email": email})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+        
+    if not verify_password(password, user["password"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": email},
+        expires_delta=access_token_expires
+    )
+    
+    # Ensure roles is properly included in the response
+    roles = user.get("roles", [user.get("role")])
+    if not roles:
+        roles = [user.get("role")]
+    
+    return {
+        "token": access_token,
+        "user": {
+            "id": str(user["_id"]),
+            "email": user["email"],
+            "name": user["name"],
+            "role": user["role"],
+            "roles": roles,
+            "is_active": user.get("is_active", True)
+        }
+    }
 
 @convert_kwargs_to_snake_case
 async def register_resolver(_, info, input):
@@ -105,9 +143,40 @@ async def register_resolver(_, info, input):
         }
     }
 
-# ... keep existing code (me_resolver and roles_resolver functions)
+@convert_kwargs_to_snake_case
+async def me_resolver(_, info):
+    context = info.context
+    request = context.get("request")
+    
+    if request and request.headers.get("Authorization"):
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+            try:
+                current_user = await get_current_user(token)
+                return current_user
+            except Exception:
+                pass
 
-# Add new resolver for user management (only accessible by superadmin)
+    return None
+
+@convert_kwargs_to_snake_case
+async def roles_resolver(_, info):
+    context = info.context
+    request = context.get("request")
+    
+    if request and request.headers.get("Authorization"):
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+            try:
+                current_user = await get_current_user(token)
+                return current_user.get("roles", [])
+            except Exception:
+                pass
+
+    return []
+
 @convert_kwargs_to_snake_case
 async def update_user_roles_resolver(_, info, user_id, roles):
     # Get current user from context

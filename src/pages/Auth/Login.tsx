@@ -29,8 +29,19 @@ const Login = () => {
     setIsLoading(true);
     try {
       const result = await loginUser(data);
+      console.log("Login response:", result);
+      
+      // Handle case where roles might be null
+      if (!result.user.roles) {
+        console.log("Setting roles from role property:", result.user.role);
+        result.user.roles = result.user.role ? [result.user.role] : [];
+      }
+      
+      console.log("Processed user before storing:", result.user);
+      
       localStorage.setItem("token", result.token);
       localStorage.setItem("user", JSON.stringify(result.user));
+      
       toast.success("Login successful!");
       navigate("/dashboard");
     } catch (error) {

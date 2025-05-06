@@ -50,10 +50,18 @@ const Sidebar = ({ navItems }: SidebarProps) => {
     if (userJson) {
       try {
         const user = JSON.parse(userJson);
+        console.log("Sidebar - Raw user from localStorage:", user);
+        
+        // Handle case where roles might be null by falling back to role property
+        if (!user.roles) {
+          console.log("Roles is null, using role property instead");
+          user.roles = user.role ? [user.role] : [];
+        }
+        
         setCurrentUser(user);
-        console.log("Sidebar - Current user:", user);
+        console.log("Sidebar - Processed user:", user);
         console.log("Sidebar - User roles:", user.roles);
-        console.log("Sidebar - Is superadmin?", user.roles?.includes('superadmin'));
+        console.log("Sidebar - Is superadmin?", user.role === 'superadmin' || user.roles?.includes('superadmin'));
       } catch (error) {
         console.error("Error parsing user from localStorage:", error);
         setCurrentUser(null);
@@ -68,8 +76,8 @@ const Sidebar = ({ navItems }: SidebarProps) => {
     navigate("/admin/users");
   };
 
-  // Check if user has superadmin role
-  const isSuperAdmin = currentUser?.roles?.includes('superadmin');
+  // Check if user has superadmin role - check both role property and roles array
+  const isSuperAdmin = currentUser?.role === 'superadmin' || currentUser?.roles?.includes('superadmin');
   console.log("Is superadmin in sidebar check:", isSuperAdmin);
 
   return (

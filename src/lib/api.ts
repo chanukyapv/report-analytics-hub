@@ -110,6 +110,7 @@ export async function getServiceMetricDashboard(token: string) {
           baseline
           target
           unit
+          status
         }
         summary {
           total
