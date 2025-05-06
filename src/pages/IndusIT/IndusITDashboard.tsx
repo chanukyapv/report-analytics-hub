@@ -76,7 +76,7 @@ const IndusITDashboard = () => {
     }
   }, []);
   
-  // Check for empty automations data
+  // Check for empty automations data - FIXED: Replacing onSuccess with meta.onSuccess
   const { data: automationsData } = useQuery({
     queryKey: ['indusit-automations'],
     queryFn: async () => {
@@ -85,11 +85,13 @@ const IndusITDashboard = () => {
       
       return await getAllAutomationMetadata(token);
     },
-    onSuccess: (data) => {
-      console.log("Automations data:", data);
-      if (!data || data.length === 0) {
-        console.log("No automation data returned, using demo data");
-        setUseDemo(true);
+    meta: {
+      onSuccess: (data) => {
+        console.log("Automations data:", data);
+        if (!data || data.length === 0) {
+          console.log("No automation data returned, using demo data");
+          setUseDemo(true);
+        }
       }
     },
     onError: (error) => {
