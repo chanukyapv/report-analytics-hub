@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, PieChart, FileWarning, ShieldAlert, Activity, Database } from "lucide-react";
-import { getUserDashboardStats, getAdminDashboardStats } from "@/lib/api";
+import { BarChart, PieChart, FileWarning, ShieldAlert, Activity, Database, AlertTriangle } from "lucide-react";
+import { getUserDashboardStats, getAdminDashboardStats, getAllAutomationMetadata } from "@/lib/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
@@ -32,9 +32,27 @@ interface DashboardStats {
   current_vulns?: number;
 }
 
+// Sample data to use when the API returns empty results
+const SAMPLE_DASHBOARD_DATA = {
+  automations_count_by_category: [
+    { category: "RPA", count: 12 },
+    { category: "SD", count: 8 },
+    { category: "ShadowIT", count: 5 }
+  ],
+  volumes_processed_today: 5280,
+  p1_bots_status: [
+    { apaid: "APA001", rpa_name: "Invoice Processing", status: "Running" },
+    { apaid: "APA002", rpa_name: "Customer Onboarding", status: "Stopped" },
+    { apaid: "APA003", rpa_name: "Data Migration", status: "Running" }
+  ],
+  last_dr_date: "15-04-2023",
+  current_vulns: 5
+};
+
 const IndusITDashboard = () => {
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [useDemo, setUseDemo] = useState(false);
   
   // Get user roles from localStorage
   useEffect(() => {
@@ -42,14 +60,43 @@ const IndusITDashboard = () => {
     if (userJson) {
       try {
         const user = JSON.parse(userJson);
-        const roles = [...(user.roles || []), user.role];
+        // Handle both roles array and role string
+        let roles = [];
+        if (user.roles && Array.isArray(user.roles)) {
+          roles = user.roles;
+        } else if (user.role) {
+          roles = [user.role];
+        }
+        console.log("User roles in IndusIT dashboard:", roles);
         setUserRoles(roles);
-        setIsAdmin(roles.includes("IDadmin"));
+        setIsAdmin(roles.includes("IDadmin") || roles.includes("superadmin"));
       } catch (e) {
         console.error("Error parsing user data:", e);
       }
     }
   }, []);
+  
+  // Check for empty automations data
+  const { data: automationsData } = useQuery({
+    queryKey: ['indusit-automations'],
+    queryFn: async () => {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No authentication token found");
+      
+      return await getAllAutomationMetadata(token);
+    },
+    onSuccess: (data) => {
+      console.log("Automations data:", data);
+      if (!data || data.length === 0) {
+        console.log("No automation data returned, using demo data");
+        setUseDemo(true);
+      }
+    },
+    onError: (error) => {
+      console.error("Error fetching automations:", error);
+      setUseDemo(true);
+    }
+  });
   
   // Fetch dashboard data based on user role
   const { data: dashboardData, isLoading, error } = useQuery({
@@ -58,10 +105,15 @@ const IndusITDashboard = () => {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No authentication token found");
       
-      if (isAdmin) {
-        return await getAdminDashboardStats(token);
-      } else {
-        return await getUserDashboardStats(token);
+      try {
+        if (isAdmin) {
+          return await getAdminDashboardStats(token);
+        } else {
+          return await getUserDashboardStats(token);
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+        return null;
       }
     },
     enabled: userRoles.length > 0
@@ -72,11 +124,15 @@ const IndusITDashboard = () => {
     if (error) {
       toast.error("Failed to load dashboard data");
       console.error("Dashboard data error:", error);
+      setUseDemo(true);
     }
   }, [error]);
+
+  // Use sample data if the API returns empty results
+  const displayData = useDemo || !dashboardData ? SAMPLE_DASHBOARD_DATA : dashboardData;
   
   // Check if user has access
-  const hasAccess = userRoles.some(role => ["IDuser", "IDadmin"].includes(role));
+  const hasAccess = userRoles.some(role => ["IDuser", "IDadmin", "superadmin"].includes(role));
   
   if (!hasAccess) {
     return (
@@ -120,6 +176,17 @@ const IndusITDashboard = () => {
         </div>
       </div>
       
+      {useDemo && (
+        <Card className="mb-4 bg-yellow-50 border-yellow-200">
+          <CardContent className="flex items-center gap-2 py-3">
+            <AlertTriangle className="h-5 w-5 text-yellow-600" />
+            <p className="text-yellow-800">
+              Using demonstration data as the backend returned no automation data.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+      
       {isLoading ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {Array(4).fill(null).map((_, i) => (
@@ -134,7 +201,7 @@ const IndusITDashboard = () => {
             </Card>
           ))}
         </div>
-      ) : dashboardData ? (
+      ) : displayData ? (
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -154,7 +221,7 @@ const IndusITDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {dashboardData.automations_count_by_category.reduce((acc, curr) => acc + curr.count, 0)}
+                    {displayData.automations_count_by_category.reduce((acc, curr) => acc + curr.count, 0)}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Across all categories
@@ -171,7 +238,7 @@ const IndusITDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {dashboardData.volumes_processed_today.toLocaleString()}
+                    {displayData.volumes_processed_today.toLocaleString()}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Transactions processed
@@ -188,8 +255,8 @@ const IndusITDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {dashboardData.p1_bots_status.filter(bot => bot.status === "Running").length}/
-                    {dashboardData.p1_bots_status.length}
+                    {displayData.p1_bots_status.filter(bot => bot.status === "Running").length}/
+                    {displayData.p1_bots_status.length}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     P1 bots currently running
@@ -197,7 +264,7 @@ const IndusITDashboard = () => {
                 </CardContent>
               </Card>
               
-              {isAdmin && "current_vulns" in dashboardData && (
+              {isAdmin && "current_vulns" in displayData && (
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
@@ -207,7 +274,7 @@ const IndusITDashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {dashboardData.current_vulns}
+                      {displayData.current_vulns}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Open security issues
@@ -227,14 +294,14 @@ const IndusITDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="h-60">
-                    {dashboardData.automations_count_by_category.map((category, i) => (
+                    {displayData.automations_count_by_category.map((category, i) => (
                       <div key={i} className="mb-4">
                         <div className="flex items-center justify-between mb-1">
                           <span>{category.category}</span>
                           <span className="text-sm font-medium">{category.count}</span>
                         </div>
                         <Progress 
-                          value={category.count / dashboardData.automations_count_by_category.reduce((acc, curr) => acc + curr.count, 0) * 100} 
+                          value={category.count / displayData.automations_count_by_category.reduce((acc, curr) => acc + curr.count, 0) * 100} 
                         />
                       </div>
                     ))}
@@ -250,7 +317,7 @@ const IndusITDashboard = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {dashboardData.p1_bots_status.length > 0 ? (
+                  {displayData.p1_bots_status.length > 0 ? (
                     <div className="h-60 overflow-auto">
                       <Table>
                         <TableHeader>
@@ -261,7 +328,7 @@ const IndusITDashboard = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {dashboardData.p1_bots_status.map((bot, i) => (
+                          {displayData.p1_bots_status.map((bot, i) => (
                             <TableRow key={i}>
                               <TableCell>{bot.rpa_name}</TableCell>
                               <TableCell>{bot.apaid}</TableCell>

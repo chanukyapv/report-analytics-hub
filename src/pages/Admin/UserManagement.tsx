@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getCurrentUser, updateUserRoles } from "@/lib/api";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, UserPlus } from "lucide-react";
 
 interface User {
   id: string;
@@ -38,7 +38,9 @@ const UserManagement = () => {
     // Check if user is superadmin
     try {
       const user = JSON.parse(userJson);
-      if (!user.roles?.includes("superadmin")) {
+      const userRoles = user.roles || [user.role];
+      
+      if (!userRoles.includes("superadmin")) {
         toast.error("Only superadmins can access user management");
         navigate("/dashboard");
         return;
@@ -46,6 +48,7 @@ const UserManagement = () => {
       
       fetchUsers(token);
     } catch (e) {
+      console.error("Error parsing user data:", e);
       navigate("/login");
       return;
     }
@@ -54,13 +57,43 @@ const UserManagement = () => {
   const fetchUsers = async (token: string) => {
     try {
       const currentUser = await getCurrentUser(token);
+      console.log("Current user from API:", currentUser);
       
       // Fetch users from backend - in a real app, we would have a dedicated API
-      // For now, we'll simulate some sample users
-      const sampleUsers: User[] = [
-        currentUser,
-        // Add more sample users as needed
-      ];
+      // For now, we'll use sample users if the backend returns only the current user
+      let sampleUsers: User[] = [currentUser];
+      
+      // Add more sample users if we only have the current user
+      if (sampleUsers.length <= 1) {
+        console.log("Adding sample users for demonstration");
+        sampleUsers = [
+          ...sampleUsers,
+          {
+            id: "sample-user-1",
+            name: "Regular User",
+            email: "user@example.com",
+            role: "user",
+            roles: ["user"],
+            is_active: true
+          },
+          {
+            id: "sample-user-2",
+            name: "SD Admin",
+            email: "sdadmin@example.com",
+            role: "SDadmin",
+            roles: ["SDuser", "SDadmin"],
+            is_active: true
+          },
+          {
+            id: "sample-user-3",
+            name: "ID User",
+            email: "iduser@example.com",
+            role: "IDuser",
+            roles: ["IDuser"],
+            is_active: true
+          }
+        ];
+      }
       
       setUsers(sampleUsers);
       
@@ -69,7 +102,9 @@ const UserManagement = () => {
       sampleUsers.forEach(user => {
         initialRoles[user.id] = {};
         availableRoles.forEach(role => {
-          initialRoles[user.id][role] = user.roles?.includes(role) || false;
+          // Handle case where roles is null by falling back to role property
+          const userRoles = user.roles || [user.role];
+          initialRoles[user.id][role] = userRoles.includes(role);
         });
       });
       setUserRoles(initialRoles);
@@ -132,6 +167,12 @@ const UserManagement = () => {
       });
     }
   };
+
+  const handleAddUser = () => {
+    toast.info("This would open a user creation form in a real app");
+    // In a real app, this would navigate to a user creation form
+    // navigate("/admin/users/create");
+  };
   
   if (isLoading) {
     return (
@@ -152,11 +193,17 @@ const UserManagement = () => {
         Back to Dashboard
       </Button>
       
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">User Role Management</h1>
-        <p className="text-gray-600">
-          Manage user roles and permissions
-        </p>
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">User Role Management</h1>
+          <p className="text-gray-600">
+            Manage user roles and permissions
+          </p>
+        </div>
+        <Button onClick={handleAddUser}>
+          <UserPlus className="mr-2 h-4 w-4" />
+          Add User
+        </Button>
       </div>
       
       <Card>

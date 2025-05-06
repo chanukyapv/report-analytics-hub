@@ -44,6 +44,7 @@ const Sidebar = ({ navItems }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   useEffect(() => {
     const userJson = localStorage.getItem("user");
@@ -53,21 +54,33 @@ const Sidebar = ({ navItems }: SidebarProps) => {
         console.log("Sidebar - Raw user from localStorage:", user);
         
         // Handle case where roles might be null by falling back to role property
-        if (!user.roles || !Array.isArray(user.roles)) {
-          console.log("Roles is null or not an array, using role property instead");
-          user.roles = user.role ? [user.role] : [];
+        let roles = [];
+        if (user.roles && Array.isArray(user.roles)) {
+          roles = user.roles;
+        } else if (user.role) {
+          roles = [user.role];
         }
         
-        setCurrentUser(user);
-        console.log("Sidebar - Processed user:", user);
-        console.log("Sidebar - User roles:", user.roles);
-        console.log("Sidebar - Is superadmin?", user.roles?.includes('superadmin'));
+        const processedUser = {
+          ...user,
+          roles
+        };
+        
+        setCurrentUser(processedUser);
+        const hasSuperAdminRole = roles.includes('superadmin');
+        setIsSuperAdmin(hasSuperAdminRole);
+        
+        console.log("Sidebar - Processed user:", processedUser);
+        console.log("Sidebar - User roles:", processedUser.roles);
+        console.log("Sidebar - Is superadmin?", hasSuperAdminRole);
       } catch (error) {
         console.error("Error parsing user from localStorage:", error);
         setCurrentUser(null);
+        setIsSuperAdmin(false);
       }
     } else {
       setCurrentUser(null);
+      setIsSuperAdmin(false);
     }
   }, []);
 
@@ -75,10 +88,6 @@ const Sidebar = ({ navItems }: SidebarProps) => {
     console.log("Admin link clicked, navigating to /admin/users");
     navigate("/admin/users");
   };
-
-  // Check if user has superadmin role by checking the roles array
-  const isSuperAdmin = currentUser?.roles?.includes('superadmin');
-  console.log("Is superadmin in sidebar check:", isSuperAdmin);
 
   return (
     <div className="flex flex-col h-full">

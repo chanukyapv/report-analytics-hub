@@ -31,16 +31,20 @@ const Login = () => {
       const result = await loginUser(data);
       console.log("Login response:", result);
       
-      // Ensure roles is always an array
-      if (!result.user.roles || !Array.isArray(result.user.roles)) {
-        console.log("Setting roles from role property:", result.user.role);
-        result.user.roles = result.user.role ? [result.user.role] : [];
+      // Process the user data to ensure roles is always an array
+      const processedUser = { ...result.user };
+      
+      // If roles is null or not an array, use role property instead
+      if (!processedUser.roles || !Array.isArray(processedUser.roles)) {
+        console.log("Setting roles from role property:", processedUser.role);
+        processedUser.roles = processedUser.role ? [processedUser.role] : [];
       }
       
-      console.log("Processed user before storing:", result.user);
+      console.log("Processed user before storing:", processedUser);
       
+      // Store the processed user data
       localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
+      localStorage.setItem("user", JSON.stringify(processedUser));
       
       toast.success("Login successful!");
       navigate("/dashboard");
