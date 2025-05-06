@@ -1,3 +1,4 @@
+
 from ariadne import convert_kwargs_to_snake_case
 from fastapi import HTTPException, status
 from datetime import timedelta
@@ -154,11 +155,29 @@ async def me_resolver(_, info):
             token = auth_header.split(" ")[1]
             try:
                 current_user = await get_current_user(token)
+                # Ensure the User ID is always a string, not an ObjectId
+                if '_id' in current_user:
+                    current_user['id'] = str(current_user['_id'])
+                
+                # Ensure roles array is present
+                if 'roles' not in current_user or not current_user['roles']:
+                    current_user['roles'] = [current_user.get('role', 'user')]
+                
+                print("me_resolver returning:", current_user)
                 return current_user
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"Error in me_resolver: {str(e)}")
+                # Don't return None for non-nullable fields
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Authentication failed"
+                )
 
-    return None
+    # Don't return None for non-nullable fields
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Authentication required"
+    )
 
 @convert_kwargs_to_snake_case
 async def roles_resolver(_, info):

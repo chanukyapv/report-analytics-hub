@@ -91,9 +91,14 @@ const Dashboard = () => {
     }
   };
   
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string | undefined) => {
     console.log("Getting status badge for:", status);
-    switch (status?.toLowerCase()) {
+    
+    if (!status) {
+      return <Badge className="bg-gray-400">Unknown</Badge>;
+    }
+    
+    switch (status.toLowerCase()) {
       case "green": 
         return <Badge className="bg-green-500">Target Achieved</Badge>;
       case "amber": 
@@ -237,7 +242,7 @@ const Dashboard = () => {
                   <TableCell>{metric.target} {metric.unit}</TableCell>
                   <TableCell>{metric.baseline} {metric.unit}</TableCell>
                   <TableCell>
-                    {getStatusBadge(metric.status || '')}
+                    {getStatusBadge(metric.status)}
                   </TableCell>
                   <TableCell>{metric.comment || "-"}</TableCell>
                 </TableRow>

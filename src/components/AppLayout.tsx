@@ -12,6 +12,7 @@ interface AppLayoutProps {
 const AppLayout = ({ children }: AppLayoutProps) => {
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState("");
+  const [userRoles, setUserRoles] = useState<string[]>([]);
   const [userName, setUserName] = useState("");
   const [menuOpen, setMenuOpen] = useState(true);
   
@@ -27,8 +28,13 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     try {
       const user = JSON.parse(userJson);
       setUserRole(user.role);
+      // Ensure roles is always an array
+      setUserRoles(Array.isArray(user.roles) ? user.roles : [user.role]);
       setUserName(user.name);
+      
+      console.log("AppLayout - User roles:", Array.isArray(user.roles) ? user.roles : [user.role]);
     } catch (e) {
+      console.error("Error parsing user data:", e);
       navigate("/login");
     }
   }, [navigate]);
@@ -38,6 +44,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     localStorage.removeItem("user");
     navigate("/login");
   };
+  
+  // Check if user is admin or superadmin
+  const isAdmin = userRole === "admin" || userRoles.includes("admin");
+  const isSuperAdmin = userRoles.includes("superadmin");
   
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -161,16 +171,22 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             </Link>
             
             {/* Admin only */}
-            {userRole === "admin" && (
-              <Link to="/settings">
-                <div className={cn(
-                  "flex items-center px-4 py-2 hover:bg-gray-100",
-                  !menuOpen && "justify-center"
-                )}>
-                  <Settings className="h-5 w-5 text-gray-600" />
-                  {menuOpen && <span className="ml-2">Settings</span>}
+            {(isAdmin || isSuperAdmin) && (
+              <>
+                <div className={cn("px-4 py-2 mt-4", !menuOpen && "text-center")}>
+                  {menuOpen ? <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Admin</h4> : <hr />}
                 </div>
-              </Link>
+                
+                <Link to="/admin/users">
+                  <div className={cn(
+                    "flex items-center px-4 py-2 hover:bg-gray-100",
+                    !menuOpen && "justify-center"
+                  )}>
+                    <Settings className="h-5 w-5 text-gray-600" />
+                    {menuOpen && <span className="ml-2">User Management</span>}
+                  </div>
+                </Link>
+              </>
             )}
           </nav>
         </div>

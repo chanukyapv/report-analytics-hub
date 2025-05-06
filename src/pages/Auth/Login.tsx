@@ -31,8 +31,8 @@ const Login = () => {
       const result = await loginUser(data);
       console.log("Login response:", result);
       
-      // Handle case where roles might be null
-      if (!result.user.roles) {
+      // Ensure roles is always an array
+      if (!result.user.roles || !Array.isArray(result.user.roles)) {
         console.log("Setting roles from role property:", result.user.role);
         result.user.roles = result.user.role ? [result.user.role] : [];
       }
